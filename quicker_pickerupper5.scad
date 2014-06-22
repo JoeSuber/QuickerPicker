@@ -23,6 +23,7 @@ lowknob = 9.5 + knobrad;  // distance from wire
 module flapattach(ra=3, t=flapthick, trusslen=truss){
 // the little bit going from rod to flap
 	difference(){
+	// disk-hull-disk
 	hull(){
 		union(){
 			cylinder(r1=ra-1, r2=ra, h=t, center=true, $fn=36);
@@ -35,7 +36,8 @@ module flapattach(ra=3, t=flapthick, trusslen=truss){
 			 translate([0,0,t])
 				 cylinder(r1=ra, r2=ra-1, h=t, center=true, $fn=36);
 		 }
-		}
+		} // end of disk-hull-disk
+	// hole for metal pin or wire (to swivel on)
 	cylinder(r=pinrad+.1, h=t*6, center=true, $fn=12);
 	}
 }
@@ -74,7 +76,7 @@ module flaps(){
 module nodule(rat=45){
 // cam for valve leaves
 	rotate([0,0,rat]) scale([2,1,.5])
-		sphere(r=2.3, $fn=64);
+		sphere(r=2.4, $fn=64);
 }
 
 // nut with bolt in it for cut-outs
@@ -133,6 +135,7 @@ difference(){
 
 
 module fan(side=57.2, w=25, curve=3, screwcenter=screwcenter){
+// box fan 60mm sqr nominal x 25mm high + 50mm OD air hole
 // fan is a tad bigger here to allow for shrink
 	realside = curve*2 + side;
 	oldz = 1;
@@ -160,8 +163,8 @@ module fan(side=57.2, w=25, curve=3, screwcenter=screwcenter){
 	}
 }
 
-// slide in captured nuts
 module nut_insert(nutrad=6.15/2, nutheight=2.5, into=6, direction=-1) {
+// slide in captured nuts
 	hull(){
 		cylinder(r=nutrad, h=nutheight, center=true, $fn=6);
 		translate([0, into*direction, 0])
@@ -170,6 +173,7 @@ module nut_insert(nutrad=6.15/2, nutheight=2.5, into=6, direction=-1) {
 }		
 
 module forbearance(screw=screwcenter+4.75){
+// bearings cut into four corners
 	for (z = [[screw,screw],
 				[screw,-screw],
 				[-screw,screw],
@@ -185,6 +189,51 @@ module forbearance(screw=screwcenter+4.75){
 		}
 	}
 }
+
+module pusher_down(fr=fanrad, rad=5, section=45, hgt=7){
+// push down flaps with this thread groove
+	rotate([45,0,0])
+	rotate([0,-90,0])
+	mirror()
+	scale([1.4,1,1])
+	difference(){
+		ring(rad*2, (rad-1.5)*2, hgt);
+		translate([0, rad*cos(180-section),-.1])		
+			cube([rad*2.1, rad*2, hgt+.2], center=true);
+		translate([0, 0, hgt/2])
+		rotate([0,20,0])	
+			cube([rad*4, rad*2.1, hgt], center=true);
+	}
+}
+
+module springy(rd=34, cb=6, thk=.4, w=gearheight){
+// torsion springs for pushing flaps down
+	difference(){
+		scale([1,1,1]){
+			translate([0,0,.3])
+			minkowski(){
+			cube([rd-2, cb-2, cb-2], center=true);
+			sphere(r=1.2, $fn=32);}
+			translate([rd/2-cb/2,rd/4+cb/2,0])
+				difference(){
+				cube([cb,rd/2,cb], center=true);
+				rotate([atan(-cb/(rd/2)),0,0]) translate([0,cb/2,cb/2])
+					cube([cb,rd/2+4,cb], center=true);
+				}
+			translate([-rd/2+cb/2,-rd/4-cb/2,0])
+				difference(){
+				cube([cb,rd/2,cb], center=true);
+				rotate([atan(cb/(rd/2)),0,0]) translate([0,-cb/2,cb/2])
+					cube([cb,rd/2+4,cb], center=true);
+				}
+			//mirror()
+			//	translate([16-2.5,8,0])
+			//	cube([5,16,5], center=true);
+		}
+	scale([rd/cb, 1, 1])
+		sphere(r=cb/2+.25, center=true, $fn=128);
+	}
+}
 			
 // main section
 module main(){
@@ -197,9 +246,9 @@ module main(){
 			cylinder(r=2, h=.1, $fn=20);
 		}		
 		translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=9, h=26, center=true, $fn=64);
+			cylinder(r=8.8, h=26, center=true, $fn=64);
 		translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=9, h=26, center=true, $fn=64);
+			cylinder(r=8.8, h=26, center=true, $fn=64);
 		//translate([0, -by*1.48, bz/2+3]) scale([1.8,.4,1])
 		//	cylinder(r=9, h=26, center=true, $fn=64);
 		//translate([0,33.15/2,-12]) rotate([0,90,0])
@@ -212,9 +261,9 @@ module main(){
 		translate([0,0,-16])
 			ring(fanrad*2+5, fanrad*2, gearheight);
 		// 4 pin holes for flap control
-		translate([0,0,-16-lowknob]) rotate([0,90,45])
+		translate([0,0,-17-lowknob]) rotate([0,90,45])
 			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-16-lowknob]) rotate([0,90,-45])
+		translate([0,0,-17-lowknob]) rotate([0,90,-45])
 			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
 		translate([0,0,-21.5]) rotate([0,90,51])
 			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
@@ -231,8 +280,6 @@ module main(){
 			LMB6mm(rodlen=120);
 		translate([bx, by*.6, bz])
 			LMB6mm(rodlen=120);
-		//translate([0, -by*1.48, bz])
-		//	LMB6mm(rodlen=120);
 		// captured nuts for attachments
 		translate([-screwcenter, outsidebox-(outsidebox-fanrad), 0])
 			rotate([90,0,0]) m3nut();
@@ -244,8 +291,9 @@ module main(){
 		forbearance();
 		// spool mount hole for thread-drive of ring
 		translate([0,outsidebox/2+2.5, -20]) rotate([90,0,0])
-			cylinder(r=4.5, h=7, center=true, $fn=128);
+			cylinder(r=4.65, h=7, center=true, $fn=128);
 	}
+
 // flaps for valve
 translate([sprd, -sprd, bz-3.8]) rotate([180,0,0])
 	flaps();
@@ -255,12 +303,16 @@ translate([-sprd, sprd, bz-3.8]) rotate([180,0,180])
 	flaps();
 translate([-sprd, -sprd, bz-3.8]) rotate([180,0,-90])
 	flaps();
+
 // knobs for valve leaves
 for (i = [45,-45,135,-135]){
-	translate([.5*fanrad/sin(i),.5*fanrad/cos(180-i),-16.8-lowknob])
+	translate([.5*fanrad/sin(i),.5*fanrad/cos(180-i),-17.8-lowknob])
 		nodule(rat=i);
-	translate([fanrad*sin(i+27),fanrad*cos(180-(i+27)),-12.2-lowknob])
-		nodule(rat=(i+27));
+	//translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
+	//	nodule(rat=(i+40));
+// push_down the flaps as they rotate
+	translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
+		sphere(r=3.2);
 	}
 }
 
@@ -346,7 +398,17 @@ translate([0,0,22])
 	}
 }
 
+module some_springs(xpos=75, ypos=4, wide=gearheight-.2){
+// for printing
+	translate([xpos,ypos-(wide+1),(wide)/2])
+		springy();
+	//translate([xpos,ypos+(wide+1),(wide)/2])
+	//	springy();
+}
+
+
 module spool(){
+// round thread puller for motor attach
 //first some spacers for flap-wires
 translate([15,0,0])
 	difference(){
@@ -364,6 +426,16 @@ translate([-10,0,0])
 		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
 	}
 translate([10,0,0])
+	difference(){
+		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
+		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
+	}
+translate([0,-10,0])
+	difference(){
+		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
+		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
+	}
+translate([0,10,0])
 	difference(){
 		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
 		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
@@ -401,6 +473,8 @@ translate([0,0,7/2]){
 
 // samples for export
 
+some_springs();
+
 main_top();
 
 print_gasket();
@@ -412,6 +486,9 @@ spool();
 can_holder();
 
 ring_holder();
+
+//pusher_down();
+
 // sample bearing
 //z608z();
 		
