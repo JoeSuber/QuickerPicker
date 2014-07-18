@@ -96,20 +96,11 @@ module nodule(rat=45){
 		sphere(r=2.42, $fn=64);
 }
 
-// nut at end of bolt for cut-outs
-module m3nut(d=6.4, h=2.7, rodd=3.1, rodlen=19, hdled=3, hdrad=6/2, capture_channel=20, channel_dir=90, fat=.1){
-	translate([0,0,-rodlen/2+h/2]){
+// nut with bolt in it for cut-outs
+module m3nut(d=6.4, h=2.4, rodlen=20){
+	translate([0,0,-h])
 		cylinder(r=d/2, h=h, center=true, $fn=6);
-		//translate([rad*cos(i), rad*sin(i), lift]) rotate([0,0,i])
-		translate([(capture_channel/2)*cos(channel_dir-90), (capture_channel/2)*sin(channel_dir-90), 0]) rotate([0,0,channel_dir]) 
-			cube([d, capture_channel, h], center=true);
-	}
-	// head of bolt is hexxed even if round
-	translate([0,0,rodlen/2 - hdled/2])
-		cylinder(r=hdrad, h=hdled, center=true, $fn=6);
-
-	// threaded part
-	cylinder(r=rodd/2+fat, h=rodlen, center=true, $fn=12);
+	cylinder(r=3/2, h=rodlen, center=true, $fn=12);
 }
 
 // 608zz bearing mount cutter
@@ -157,6 +148,35 @@ difference(){
 	cylinder(r=rOD/2, h=height, center=true, $fn=96);
 	cylinder(r=rID/2, h=height, center=true, $fn=96);
 	}
+}
+
+module disc(sect=fanrad/2 - 1)
+{
+difference(){
+	cylinder(r=fanrad+1, h=2, center=true, $fn=128);
+	rotate([0,0,0]){
+	rotate([0,-90,0])
+	translate([0, 0, -fanrad/2])
+		union(){
+		cylinder(r1=sect*2, r2=.1, h=fanrad, center=true, $fn=96);
+		translate([0,0,-fanrad/2]) scale([1,1,.333])
+				sphere(r= sect*2*3.1415926/6, $fn=48);
+		}
+	rotate([0,90,0])
+	translate([0, 0, -fanrad/2])
+		union(){
+		cylinder(r1=sect*2, r2=.1, h=fanrad, center=true, $fn=96);
+		translate([0,0,-fanrad/2]) scale([1,1,.333])
+				sphere(r= sect*2*3.1415926/6, $fn=48);
+		}
+	}
+	}
+}
+
+module disk_low(){
+//	linear_extrude(height = 3, center = true, convexity = 10, twist = 0, slices = 20, scale = 1.0){
+	disc();
+//	}
 }
 
 
@@ -231,6 +251,7 @@ module contact_switch(len=13.4, dp=5.4, ht=6.4, blade_ht=65, bladew=1.8, bladeth
 			
 // main section
 module main(baselevel=-46.8){
+union(){
 	difference(){
 		translate([0,outextendo/2,-18])
 		union(){
@@ -239,10 +260,10 @@ module main(baselevel=-46.8){
 			cube([outsidebox,outsidebox+outextendo,60], center=true);
 			cylinder(r=2, h=.1, $fn=20);
 		}		
-		translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=8.8, h=26, center=true, $fn=64);
-		translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=8.8, h=26, center=true, $fn=64);
+		//translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
+			//cylinder(r=8.8, h=26, center=true, $fn=64);
+		//translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
+			//cylinder(r=8.8, h=26, center=true, $fn=64);
 		//translate([0, -by*1.48, bz/2+3]) scale([1.8,.4,1])
 		//	cylinder(r=9, h=26, center=true, $fn=64);
 		//translate([0,33.15/2,-12]) rotate([0,90,0])
@@ -255,16 +276,16 @@ module main(baselevel=-46.8){
 		translate([0,0,-16])
 			ring(fanrad*2+5, fanrad*2-.1, gearheight);
 		// m3bearing bolt-head access
-		
+
 		// 4 pin holes for flap control
-		translate([0,0,-17-lowknob]) rotate([0,90,45])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-17-lowknob]) rotate([0,90,-45])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-21.5]) rotate([0,90,51])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-21.5]) rotate([0,90,-39])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
+		//translate([0,0,-17-lowknob]) rotate([0,90,45])
+		//	cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
+		//translate([0,0,-17-lowknob]) rotate([0,90,-45])
+		//	cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
+		//translate([0,0,-21.5]) rotate([0,90,51])
+		//	cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
+		//translate([0,0,-21.5]) rotate([0,90,-39])
+		//	cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
 		// can is gripped here
 		translate([0,0,-38])
 			ring(64.75, 63, 25);
@@ -273,9 +294,9 @@ module main(baselevel=-46.8){
 			cylinder(r1=62.2/2, r2=fanrad, 12, center=true, $fn=64);
 		// linear bearing holders
 		translate([-bx, by*.8, bz])
-			LMB6mm(rodlen=120);
+			LMB6mm(rodlen=70);
 		translate([bx, by*.8, bz])
-			LMB6mm(rodlen=120);
+			LMB6mm(rodlen=70);
 		// captured nuts for attachments
 		translate([-screwcenter, -(outsidebox-fanrad)+3, 0])
 			rotate([90,0,0]) m3nut();
@@ -317,15 +338,18 @@ translate([-sprd, -sprd, baselevel]) rotate([180,0,-90])
 	flaps();
 */
 // knobs for valve leaves
-for (i = [45,-45,135,-135]){
-	translate([.5*fanrad/sin(i),.5*fanrad/cos(180-i),-17.8-lowknob])
-		nodule(rat=i);
+//for (i = [45,-45,135,-135]){
+//	translate([.5*fanrad/sin(i),.5*fanrad/cos(180-i),-17.8-lowknob])
+//		nodule(rat=i);
 	//translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
 	//	nodule(rat=(i+40));
 // push_down the flaps as they rotate
-	translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
-		sphere(r=3.2);
-	}
+//	translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
+//		sphere(r=3.2);
+//	}
+translate([0,0,-20.99])
+	disc();
+}
 }
 
 module main_bottom(){
@@ -346,7 +370,8 @@ translate([(outsidebox+10), +29, 26/2])
 }
 module inner_ring(){
 // inner ring for printing
-translate([outsidebox+3, +outextendo, 0])
+union(){
+translate([outsidebox-41, -17-outextendo, 0]){
 	difference(){
 		union(){
 			// bottom bevel grabber
@@ -364,11 +389,15 @@ translate([outsidebox+3, +outextendo, 0])
 		translate([0,0,-0.1])
 			cylinder(r1=fanrad-.6, r2=fanrad-.1, h=7.15, center=false, $fn=128);
 		// wire holder holes
-		translate([0,0,.9]) rotate([0,90,0])
-			cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
-		translate([0,0,.9]) rotate([90,0,0])
-			cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
+		//translate([0,0,.9]) rotate([0,90,0])
+		//	cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
+		//translate([0,0,.9]) rotate([90,0,0])
+		//	cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
 	}
+translate([0,0,1])
+disc();
+}
+}
 }
 
 module print_gasket(screw=screwcenter+4.75){
@@ -407,7 +436,7 @@ translate([0,0+outextendo+1,22])
 	difference(){
 		main_bottom();
 		translate([0,0+outextendo/2,-50])
-			cube([100,100+outextendo,56], center=true);
+			cube([100,70+outextendo,56], center=true);
 	}
 }
 
@@ -476,20 +505,20 @@ translate([0,+outextendo,7/2]){
 
 
 // samples for export
-//rotate([0,180,0]) translate([0,0,-fanheight])
-//	main_top();
+rotate([0,180,0]) translate([0,0,-fanheight])
+	main_top();
 
 //print_gasket();
 
-//inner_ring();
+inner_ring();
 
 //spool();
-//rotate([0,0,-90]) translate([50,20,0])
-//	can_holder();
+rotate([0,0,-90]) translate([45,0,0])
+	can_holder();
 
-//ring_holder();
-
-m3nut(capture_channel=50, channel_dir=13);
+ring_holder();
+//translate([0,-60,0])
+//	disk_low();
 //pusher_down();
 
 //contact_switch();
