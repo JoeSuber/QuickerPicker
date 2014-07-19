@@ -97,23 +97,32 @@ module nodule(rat=45){
 }
 
 // nut at end of bolt for cut-outs
-module m3nut(d=6.4, h=2.7, rodd=3.1, rodlen=19, hdled=3, hdrad=6/2, capture_channel=20, channel_dir=90, fat=.1){
+module m3nut(d=6.4, 
+				h=2.7, 
+				rodd=3.1, 
+				rodlen=19, 
+				hdled=3, 
+				hdrad=6/2, 
+				capture_channel=20, 
+				channel_dir=90, 
+				fat=.1){
 	translate([0,0,-rodlen/2+h/2]){
+		// nut on end of threads
 		cylinder(r=d/2, h=h, center=true, $fn=6);
-		//translate([rad*cos(i), rad*sin(i), lift]) rotate([0,0,i])
+		// 'tunnel' to nut
 		translate([(capture_channel/2)*cos(channel_dir-90), (capture_channel/2)*sin(channel_dir-90), 0]) rotate([0,0,channel_dir]) 
 			cube([d, capture_channel, h], center=true);
 	}
 	// head of bolt is hexxed even if round
 	translate([0,0,rodlen/2 - hdled/2])
-		cylinder(r=hdrad, h=hdled, center=true, $fn=6);
-
+		cylinder(r=hdrad+fat, h=hdled, center=true, $fn=6);
 	// threaded part
 	cylinder(r=rodd/2+fat, h=rodlen, center=true, $fn=12);
 }
 
-// 608zz bearing mount cutter
+
 module z608z(mntrad=7.45/2, ht=7, innermnt=2.35, race=2.6, edge=2.35){
+// 608zz bearing mount cutter
 	translate([0,0,0])
 		union(){
 			ring((innermnt+mntrad)*2, mntrad*2,  height=ht-.1);
@@ -125,7 +134,12 @@ module z608z(mntrad=7.45/2, ht=7, innermnt=2.35, race=2.6, edge=2.35){
 }
 
 // linear bearing for 6mm w/ rod sticking through it
-module LMB6mm(OD=12, OD_groove=11.41, ID=6, len=18.86, stripe=1.25, stripe_to_end=2.66, rodlen=100){
+module LMB6mm(OD=12, 
+				OD_groove=11.41, 
+				ID=6, len=18.86, 
+				stripe=1.25, 
+				stripe_to_end=2.66, 
+				rodlen=100){
 difference(){
 	union(){
 		// body of bearing, stacked up
