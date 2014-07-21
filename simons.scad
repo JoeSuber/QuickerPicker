@@ -1,7 +1,7 @@
-bigbox = 60;
-bigboxht = 50;
-sides = 5;
-ledhole=5.2;
+bigbox = 80;
+bigboxht = 55;
+sides = 3;
+ledhole=15;
 
 module box (outside=bigbox, height=bigboxht, wt=sides, mid=1){
 	difference(){
