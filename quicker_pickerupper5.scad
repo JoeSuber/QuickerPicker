@@ -96,7 +96,7 @@ module nodule(rat=45){
 		sphere(r=2.42, $fn=64);
 }
 
-// nut at end of bolt for cut-outs
+// nut at end of bolt for cut-outs also has access tunnel
 module m3nut(d=6.4, 
 				h=2.7, 
 				rodd=3.1, 

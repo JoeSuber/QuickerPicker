@@ -2,21 +2,34 @@
 // circular cam generator
 // use cubes to make a smooth circular arangement of bumps
 
-outsiderad = 25;
-insiderad = 22;
+outsiderad = 35;
+insiderad = 30;
 pi = 3.141592653589793;
 thickness = outsiderad - insiderad;
 spot = insiderad + thickness / 2;
 circumf = outsiderad * 2 * pi;
-lift = 5;  					// peak-to-trough height of bumps
-detail = 45;				// how many sections make up each valley-to-peak, i.e. resolution
-peaks = 4;					// how many upright bumps
-deg_per_step = 360 / (detail * peaks);
-chunk = circumf / (detail * peaks);
-echo("deg_per_step is: ", deg_per_step);
+div = 4;					// wave 'peaks' or bumps around the circle
+lift = 6;  					// peak-to-trough height of bumps
+detail = 720;				// how many divisions in a bump-block (aka div), i.e. resolution				
+ranger = 360*div;				// how many degrees of a circle to represent
+part_circle = ranger/360 * circumf;
+bit = part_circle / ranger;
+deg_in_detail = bit/part_circle * 360;
 
-for (m=[0:deg_per_step:359]){
-	//for (i=[0 : (360/peaks)/detail : (360/peaks)]) {		// i = one sinewave iterator
-	translate([cos(m)*spot, sin(m)*spot, lift*abs(sin(m))/2]) rotate([0,0,m])
-		cube([chunk, thickness, lift*abs(sin(m))], center=true);
+
+
+module hump (div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness, base=1.5){
+	for (i=[1 : (1/detail)*ranger : ranger]){
+		translate([cos( i/div) * spot, sin( i/div) * spot, (lift + lift*sin(i))/2]) 
+		rotate([0,0, i/div])
+			scale([1, 1, 1])
+			cube([thickness, (1/detail) * part_circle, base+ (lift + lift*sin(i))], center=true);
+	}
 }
+
+module roller (div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness, sc=[1,1,1], base=1.5){
+			scale(sc)
+				hump(div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness, base=1.5);
+}
+
+roller(sc=[1,1,.5]);
