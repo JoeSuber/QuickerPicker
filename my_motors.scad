@@ -1,6 +1,4 @@
-// Copyright 2010 D1plo1d
 
-// This library is dual licensed under the GPL 3.0 and the GNU Lesser General Public License as per http://creativecommons.org/licenses/LGPL/2.1/ .
 
 include <math.scad>
 
@@ -60,10 +58,11 @@ module _stepper_motor_mount(
 	{
 	// == centered mount points ==
 	//mounting circle inset
+	hull(){
 	translate([0,slide_distance/2,0]) circle(r = pilot_diameter/2 + tolerance);
-	square([pilot_diameter,slide_distance],center=true);
+	// square([pilot_diameter,slide_distance],center=true);
 	translate([0,-slide_distance/2,0]) circle(r = pilot_diameter/2 + tolerance);
-
+	}
 	//todo: motor shaft hole
 	
 	//mounting screw holes
@@ -86,12 +85,12 @@ module _stepper_motor_mount(
 		translate([0,0,-5]) cylinder(h = 5, r = pilot_diameter/2);
 		translate(v=[0,0,-motor_length/2])
 		{
-			cube(size=[bolt_hole_distance+bolt_hole_size+5,bolt_hole_distance+bolt_hole_size+5,motor_length], center = true);
+			#cube(size=[bolt_hole_distance+bolt_hole_size+5,bolt_hole_distance+bolt_hole_size+5,motor_length], center = true);
 		}
 		//shaft
 		translate(v=[0,0,-(motor_length-motor_shaft_length-2)/2])
 		{
-			cylinder(r=motor_shaft_diameter/2,h=motor_length+motor_shaft_length--1, center = true);
+			#cylinder(r=motor_shaft_diameter/2,h=motor_length+motor_shaft_length--1, center = true);
 		}
 	}
 	}

@@ -1,6 +1,6 @@
-use </home/suber1/QuickerPicker/quicker_pickerupper5.scad>;
+use <quicker_pickerupper5.scad>;
 use <MCAD/involute_gears.scad>;
-use <MCAD/motors.scad>;
+use <my_motors.scad>;
 use <MCAD/hardware.scad>;
 
 baserad=50;
