@@ -1,58 +1,90 @@
-bigbox = 80;
-bigboxht = 55;
-sides = 3;
-ledhole=15;
+bigbox = 80;						// old box was 70?
+bigboxht = 55;						// up from 50
+fatten_for_lid_cut=.0;				// test fit lids: if more than .6 needed, bad geometry or print
+sides = 2;							// skinny, assumes some further light-stopping material/paint
+ledhole=15;	
+holeside=ledhole + sides*2 + 10;	// accomodate lense assembly
+cornerad=4;						// used with minkowski(), cornerad*2 + 4-flat-sides = perimeter
+small_chamber = 1/3;				// total of chambers' ratios should == 1
+big_chamber = 2/3;				// chambers can be swapped
+slit_width = 5;						// mm
+cuvtt_inside = 12;
+lid_lad = 7;
+lid_puff = 4;
 
-module box (outside=bigbox, height=bigboxht, wt=sides, mid=1){
+
+module walls_of_box(
+			fattener=fatten_for_lid_cut,
+			longside=bigbox, 
+			bigboxht=bigboxht, 
+			wallthick=sides,
+			ledhole=ledhole,
+			cornerad=cornerad,
+			holeside=holeside,
+			insiders_x=bigbox - sides*3 - cornerad*2,
+			insiders_y=ledhole - cornerad,		// inner-wall corner radius is hard-coded at 1/2 of outer
+			){
+	echo("longside = ", longside);
+	echo("insiders_x = ", insiders_x);
+	echo("insiders_y = ", insiders_y);
 	difference(){
-	cube([outside,outside,height], center=true);
-	translate([0,0,wt/2])
-		cube([(outside-wt*2)-((outside-wt*2)*(mid-1))+.1,outside-wt*2-((outside-wt*2)*(mid-1))+.1,height-wt+.1], center=true);
-	}
-}
-
-
-module cuvette (cvdim=10, cvside=5, cvh=5, wallmid=1){
-	difference(){
-	union(){
-	translate([0,0,-bigbox/2+(sides+cvh+cvside/2)])
-		cube([cvdim+cvside*2,cvdim+cvside*2, cvh], center=true);
-	translate([-cvdim+cvside/2, 0, 0])
-		cube([cvside*wallmid, bigbox, bigboxht], center=true);
-	}
- 	translate([0,0,sides])
-		cube([cvdim+.2,cvdim+.2,bigbox-sides*2], center=true);
-	translate([-cvdim+cvside/2,0,0])
-		cube([cvside*wallmid+.1,cvside,bigboxht-sides*2-cvside*2], center=true);
-	}
-}
-
-module openbox (midwall=1){
-	difference(){
-		union(){
-			cuvette(wallmid=midwall);
-			box(mid=midwall-(midwall-1)/2);
+		minkowski(){
+			square([longside - cornerad*2, holeside - cornerad*2], center=true);
+			circle(r=cornerad-fattener, $fn=36);
 		}
-		translate([0,0,0]) rotate([0,90,0])
-			cylinder(r=5/2, h=bigbox*2, center=true, $fn=36);
+		for(block=[[small_chamber*insiders_x - fattener*2, fattener/2], 
+					[big_chamber*insiders_x - fattener*2, 28-fattener/2]]){
+			echo("block[0] = ", block[0]);
+			translate([-longside/2+(wallthick+fattener/2)*2+block[0]/2 + block[1], 0, 0]){
+				minkowski(){
+					square([block[0], holeside - cornerad - sides*2 - fattener*2], center=true);
+					circle(r=cornerad/2, $fn=36);
+				}
+				// this square is just here to show the light-path
+				#square([block[0], slit_width], center=true);
+			}
+		}
 	}
 }
 
-module lid () {
+module growbox(to_height=bigboxht, slit_width=slit_width, fatboy=0){
 	difference(){
-		// review level for printing if changing scale-z from 0.7
-		scale([1, 1, 0.7])
-			cube([bigbox-.1,bigbox-.1,10], center=true);
-		translate([0,0,-bigboxht/2]) scale([1.0, 1.0, 1])
-			openbox(midwall=1.1);
+		linear_extrude(height = to_height, center = true, convexity = 10, twist = 0, slices = to_height*2, scale = 1){
+			walls_of_box(fattener=fatboy);
+		}
+		cube([bigbox-sides*2-cornerad, slit_width, to_height - 10], center=true);
+		for (i=[-bigbox/2, bigbox/2]){
+			translate([i,0,0]) rotate([0,90,0])
+			#cylinder(r=ledhole/2, h=sides*3, center=true, $fn=128);
+		}
 	}
 }
 
-openbox(midwall=1.0);
+module lids_on_it (overhang=lid_puff, basethick=lid_lad, with_cuvt=1){
+	difference(){
+		minkowski(){
+			cube([bigbox, holeside, basethick], center=true);
+			sphere(r=overhang/2, center=true, $fn=64);
+		}
+		// imprint the base of the walls and cuvette on a lid-like-structure
+		translate([0,0,bigboxht/2])
+			growbox(fatboy=.2);
+		translate([0,0,bigboxht/2])
+			cube([cuvtt_inside+.5, cuvtt_inside+.5, bigboxht], center=true);
+		// an extra cut to ensure the lid doesn't obscure the cuvett:
+		translate([0,0,bigboxht/2])
+			cube([bigbox-sides*4, slit_width-.1, bigboxht], center=true);
+	}
+}
 
-translate([0,0,-bigbox/2+8.55])
-translate([bigbox+1,0,0]) rotate([0,180,0])
-lid();
+
+translate([0,holeside+lid_puff+2,(lid_lad+lid_puff)/2])
+	lids_on_it(with_cuvt=1);
+translate([0,-(holeside+lid_puff+2),(lid_lad+lid_puff)/2])
+	lids_on_it(with_cuvt=0);
+translate([0,0,bigboxht/2])
+	growbox();
+
 
 
 

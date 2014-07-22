@@ -9,8 +9,8 @@ thickness = outsiderad - insiderad;
 spot = insiderad + thickness / 2;
 circumf = outsiderad * 2 * pi;
 div = 3;							// wave 'peaks' or bumps around the perimeter of the circle
-lift = 6;  						// zero-to-apex-or-trough i.e. size of bumps
-detail = 200;					// how many divisions in a bump-block (aka div), i.e. resolution				
+lift = 4;  						// zero-to-apex-or-trough i.e. size of bumps
+detail = 275;					// how many divisions in a bump-block (aka div), i.e. resolution				
 ranger = 360*div;				// how many degrees of a circle to represent
 part_circle = ranger/360 * circumf;
 bit = part_circle / ranger;
@@ -33,12 +33,12 @@ module hump (div=div,
 	}
 }
 
-module roller (div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness, sc=[1,1,1], base=1.5){
+module roller (div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness, sc=[1,1,1], base=1.4){
 			scale(sc)
-				hump(div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness+1, base=1.5);
+				hump(div=div, ranger=ranger, lift=lift, detail=detail, thickness=thickness+.1, base=1.4);
 }
 
-module springpart(wirethick=1.5, scaleofcut=0.92){
+module springpart(wirethick=1.3, scaleofcut=1){
 	difference(){
 		hump();
 		translate([0,0,-wirethick])
@@ -46,10 +46,10 @@ module springpart(wirethick=1.5, scaleofcut=0.92){
 	}
 }
 
-module sprang(stacks=1, howhigh=12) {
+module sprang(stacks=2, howhigh=11) {
 	for (i=[0 : howhigh : stacks*howhigh]){
 		translate([0,0,i])
-			springpart(scaleofcut=howhigh/i);
+			springpart();
 		translate([0,0,i]) rotate([0,0,45])
 			springpart();
 		translate([0,0,i+howhigh]) rotate([0,0,45])
@@ -58,7 +58,8 @@ module sprang(stacks=1, howhigh=12) {
 			springpart();
 	}
 }
-
-sprang(stacks=1, howhigh=13);
+rotate([0,180,0])
+	translate([0,0,-30])
+	sprang(stacks=1, howhigh=11);
 
 
