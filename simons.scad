@@ -1,3 +1,7 @@
+
+echo("a box with holes in it for Simon");
+// todo: get rid of hard-coded '28' in walls_of_box
+
 bigbox = 80;						// old box was 70?
 bigboxht = 55;						// up from 50
 fatten_for_lid_cut=.0;				// test fit lids: if more than .6 needed, bad geometry or print
@@ -8,9 +12,9 @@ cornerad=4;						// used with minkowski(), cornerad*2 + 4-flat-sides = perimeter
 small_chamber = 1/3;				// total of chambers' ratios should == 1
 big_chamber = 2/3;				// chambers can be swapped
 slit_width = 5;						// mm
-cuvtt_inside = 12;
-lid_lad = 7;
-lid_puff = 4;
+cuvtt_inside = 12;					// put cuvette into a lid, slide detector around it, put other lid on.
+lid_lad = 7;						// basic lid thickness
+lid_puff = 4;						// rounded-ness for lid
 
 
 module walls_of_box(
