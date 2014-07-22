@@ -4,7 +4,8 @@ echo("a box with holes in it for Simon");
 
 bigbox = 80;						// old box was 70?
 bigboxht = 55;						// up from 50
-fatten_for_lid_cut=.0;				// test fit lids: if more than .6 needed, bad geometry or print
+fatten_for_lid_cut=0;				// test fit lids: if more than .6 needed, bad geometry or print
+									// also, should be zero when printing center section
 sides = 2;							// skinny, assumes some further light-stopping material/paint
 ledhole=15;	
 holeside=ledhole + sides*2 + 10;	// accomodate lense assembly
@@ -34,7 +35,7 @@ module walls_of_box(
 	difference(){
 		minkowski(){
 			square([longside - cornerad*2, holeside - cornerad*2], center=true);
-			circle(r=cornerad-fattener, $fn=36);
+			circle(r=cornerad+fattener, $fn=36);
 		}
 		for(block=[[small_chamber*insiders_x - fattener*2, fattener/2], 
 					[big_chamber*insiders_x - fattener*2, 28-fattener/2]]){
@@ -42,7 +43,7 @@ module walls_of_box(
 			translate([-longside/2+(wallthick+fattener/2)*2+block[0]/2 + block[1], 0, 0]){
 				minkowski(){
 					square([block[0], holeside - cornerad - sides*2 - fattener*2], center=true);
-					circle(r=cornerad/2, $fn=36);
+					circle(r=(cornerad-fattener)/2, $fn=36);
 				}
 				// this square is just here to show the light-path
 				#square([block[0], slit_width], center=true);
@@ -54,7 +55,7 @@ module walls_of_box(
 module growbox(to_height=bigboxht, slit_width=slit_width, fatboy=0){
 	difference(){
 		linear_extrude(height = to_height, center = true, convexity = 10, twist = 0, slices = to_height*2, scale = 1){
-			walls_of_box(fattener=fatboy);
+			walls_of_box(fattener=fatboy+fatten_for_lid_cut);
 		}
 		cube([bigbox-sides*2-cornerad, slit_width, to_height - 10], center=true);
 		for (i=[-bigbox/2, bigbox/2]){
