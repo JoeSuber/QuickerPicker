@@ -10,6 +10,8 @@ house_corner = 9.8;
 //actual_size = blades;
 actual_size = blades; // after print, measured diameter of printed fan-blade hole (for scale-up-or-down)
 
+echo("fanterface(); generates a default 60mm CPU-fan holding rim, including an 'inside' part");
+
 module volcano(inside=blades, based=conebase, ht=coneheight){
 	difference(){
 		difference(){
