@@ -10,11 +10,11 @@ sides = 2;							// skinny, assumes some further light-stopping material/paint
 ledhole=15;	
 holeside=ledhole + sides*2 + 10;	// accomodate lense assembly
 cornerad=4;						// used with minkowski(), cornerad*2 + 4-flat-sides = perimeter
-small_chamber = 1/3;				// total of chambers' ratios should == 1
-big_chamber = 2/3;				// chambers can be swapped
+small_chamber = 1/3;				// total of chambers' ratios should == 1 unless center wall gets thicker
+big_chamber = 2/3;				// chambers can be swapped, or center wall can dissapear
 slit_width = 5;						// mm
-cuvtt_inside = 12;					// put cuvette into a lid, slide detector around it, put other lid on.
-lid_lad = 7;						// basic lid thickness
+cuvtt_inside = 12;					// put cuvette into a lid, slide detector assm into lid-grooves, put other lid on.
+lid_lad = 6;						// basic lid thickness
 lid_puff = 4;						// rounded-ness for lid
 
 
@@ -73,7 +73,7 @@ module lids_on_it (overhang=lid_puff, basethick=lid_lad, with_cuvt=1){
 		}
 		// imprint the base of the walls and cuvette on a lid-like-structure
 		translate([0,0,bigboxht/2])
-			growbox(fatboy=.2);
+			growbox(fatboy=.3);
 		translate([0,0,bigboxht/2])
 			cube([cuvtt_inside+.5, cuvtt_inside+.5, bigboxht], center=true);
 		// an extra cut to ensure the lid doesn't obscure the cuvett:
