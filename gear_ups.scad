@@ -1,6 +1,8 @@
 use <MCAD/involute_gears.scad>;
-use </home/suber1/SuckUp/cone_holio.scad>;
-use </home/suber1/SuckUp/faninterface_ring.scad>;
+use <cone_holio.scad>;
+use <faninterface_ring.scad>;
+
+// EXAMPLES OF gear() USE:
 
 //gear (circular_pitch=700,
 //	gear_thickness = 12,
@@ -26,11 +28,14 @@ module gear (
 	involute_facets=0,
 	flat=false)
 {
-*/
+*/ // END EXAMPLES //
+
+
 $fn=80;
 measurebox= 26.69;
 mbigbox=62.5;
 
+// used for visually checking scale of generated gears
 module mbox(mb=measurebox){
 	difference(){
 		cube([mb,mb,.6], center=true);
@@ -38,7 +43,7 @@ module mbox(mb=measurebox){
 	}
 }
 
-// mbox();
+mbox();
 
 gear (number_of_teeth=21,
 	circular_pitch=2*23.2*3.141592654,

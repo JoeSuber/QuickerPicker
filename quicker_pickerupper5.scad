@@ -1,6 +1,10 @@
-use <small_step.scad>
+use <small_step.scad>;
+use <roundwave.scad>;
+use <faninterface_ring.scad>;
+use <608zz_run_free.scad>;
+use <my_motors.scad>;
+//import <608zz_run_toshaft.stl>;
 
-echo(version=version());
 echo("main picker assembly");
 
 
@@ -37,67 +41,7 @@ module gearmotor(l=25, w=12, h=10, r=3
 
 }
 
-module flapattach(ra=3, t=flapthick, trusslen=truss){
-// the little bit going from rod to flap
-	difference(){
-	// disk-hull-disk
-	hull(){
-		union(){
-			cylinder(r1=ra-1, r2=ra, h=t, center=true, $fn=36);
-			translate([0,0,t])
-				cylinder(r1=ra, r2=ra-1, h=t, center=true, $fn=36);
-		}
-		translate([trusslen,0,0])
-		 union(){
-			 cylinder(r1=ra-1, r2=ra, h=t, center=true, $fn=36);
-			 translate([0,0,t])
-				 cylinder(r1=ra, r2=ra-1, h=t, center=true, $fn=36);
-		 }
-		} // end of disk-hull-disk
-	// hole for metal pin or wire (to swivel on)
-	cylinder(r=pinrad+.1, h=t*6, center=true, $fn=12);
-	}
-}
-
-module flap(rd=fanrad-1, t=flapthick, trs=truss){
-// make quarter-section of stopper
-	difference(){
-		union(){
-		difference(){
-			cylinder(r=rd, h=t, center=false, $fn=128);
-			translate([rd/2, -rd/2, t/2])
-				cube([rd,rd,t*2], center=true);
-			translate([-rd/2, -rd/2, t/2])
-				cube([rd,rd,t*2], center=true);
-			translate([-rd/2, rd/2, t/2])
-				cube([rd,rd,t*2], center=true);
-		}
-		translate([0, trs, -6]) rotate([90,-60,0])
-			flapattach();
-		translate([0, rd-trs, -6]) rotate([90,-60,0])
-			flapattach();
-		}
-	translate([rd/2, rd/2, t*3])
-		cube([rd*2,rd,t*4], center=true);
-	}
-}
-
-module flaps(){
-	difference(){
-		flap();
-		rotate([0,0,-90])
-			flap();
-	}
-}
-
-module nodule(rat=45){
-// cam for valve leaves
-	rotate([0,0,rat]) scale([2,1,.5])
-		sphere(r=2.42, $fn=64);
-}
-
-// nut at end of bolt for cut-outs also has access tunnel
-module m3nut(d=6.4, 
+module m3nut(d=6.4, 			// nut at end of bolt for cut-outs also has access tunnel
 				h=2.7, 
 				rodd=3.1, 
 				rodlen=19, 
@@ -174,7 +118,7 @@ difference(){
 }
 
 
-module fan(side=57.2, w=fanheight, curve=3, screwcenter=screwcenter){
+module fan(side=60.2, w=fanheight, curve=3, screwcenter=screwcenter){
 // box fan 60mm sqr nominal x 25mm high + 50mm OD air hole
 // fan is a tad bigger here to allow for shrink
 	realside = curve*2 + side;
@@ -319,27 +263,7 @@ module main(baselevel=-46.8){
 		translate([0,outsidebox/2+2.5, -16.3]) rotate([0,90,0])
 			cylinder(r=.7, h=60, center=true, $fn=6);
 	}
-/*
-// flaps for valve
-translate([sprd, -sprd, baselevel]) rotate([180,0,0])
-	flaps();
-translate([sprd, sprd, baselevel]) rotate([180,0,90])
-	flaps();
-translate([-sprd, sprd, baselevel]) rotate([180,0,180])
-	flaps();
-translate([-sprd, -sprd, baselevel]) rotate([180,0,-90])
-	flaps();
-*/
-// knobs for valve leaves
-for (i = [45,-45,135,-135]){
-	translate([.5*fanrad/sin(i),.5*fanrad/cos(180-i),-17.8-lowknob])
-		nodule(rat=i);
-	//translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
-	//	nodule(rat=(i+40));
-// push_down the flaps as they rotate
-	translate([fanrad*sin(i+40),fanrad*cos(180-(i+40)),-13.7-lowknob])
-		sphere(r=3.2);
-	}
+
 }
 
 module main_bottom(){
@@ -490,21 +414,21 @@ translate([0,+outextendo,7/2]){
 
 
 // samples for export
-//rotate([0,180,0]) translate([0,0,-fanheight])
-//	main_top();
+rotate([0,180,0]) translate([0,0,-fanheight])
+	main_top();
 
 //print_gasket();
 
 //inner_ring();
 
-//spool();
-//rotate([0,0,-90]) translate([50,20,0])
-//	can_holder();
+spool();
+rotate([0,0,-90]) translate([50,20,0])
+	can_holder();
 
-//ring_holder();
+ring_holder();
 
-m3nut(capture_channel=50, channel_dir=13);
-//pusher_down();
+// m3nut(capture_channel=50, channel_dir=13);
+pusher_down();
 
 //contact_switch();
 

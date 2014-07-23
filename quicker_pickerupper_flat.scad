@@ -1,9 +1,6 @@
-use <small_step.scad>
-
-echo(version=version());
+use <small_step.scad>;
+use <roundwave.scad>;
 echo("main picker assembly");
-
-
 
 fanrad = 57/2;
 fanheight = 25;
