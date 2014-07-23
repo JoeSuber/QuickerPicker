@@ -1,6 +1,6 @@
 use <small_step.scad>;
 use <roundwave.scad>;
-use <faninterface_ring.scad>;
+use <faninterface_ring.scad>;		// fanterface();
 use <608zz_run_free.scad>;
 use <my_motors.scad>;
 //import <608zz_run_toshaft.stl>;
