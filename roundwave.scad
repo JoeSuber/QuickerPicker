@@ -10,7 +10,7 @@ spot = insiderad + thickness / 2;
 circumf = outsiderad * 2 * pi;
 div = 3;							// wave 'peaks' or bumps around the perimeter of the circle
 lift = 4;  						// zero-to-apex-or-trough i.e. size of bumps
-detail = 275;					// how many divisions in a bump-block (aka div), i.e. resolution				
+detail = 300;					// how many divisions in a bump-block (aka div), i.e. resolution				
 ranger = 360*div;				// how many degrees of a circle to represent
 part_circle = ranger/360 * circumf;
 bit = part_circle / ranger;
@@ -60,6 +60,7 @@ module sprang(stacks=2, howhigh=11) {
 }
 rotate([0,180,0])
 	translate([0,0,-30])
-	sprang(stacks=1, howhigh=11);
+	//sprang(stacks=1, howhigh=11);
+	hump(div=2);
 
 

@@ -1,8 +1,9 @@
 
 echo("608zz_run_free - cones for thread return on 608zz bearing");
 // my_bearing_cutter() is for cutting into other stuff, not otherwise representing
-
 $fn=128;
+
+
 module my_bearing_cutter(
 shaftlen=20, 
 wholeH=7.1, 
@@ -11,7 +12,7 @@ outD=22.15,
 outwall_thk=2.3, 
 inspinD=12.6, 
 inspinID=8,
-inspincut=4,
+inspincut=1.5,
 ){
 	// bevel on outside perimeters
 	difference(){
@@ -40,7 +41,7 @@ inspincut=4,
 	}
 }
 
-module freewheel (outsideD=25, sidewallthk=1.2, shaftage=8, bearingH=7.1){
+module freewheel (outsideD=28, sidewallthk=1.2, shaftage=8, bearingH=7.1){
 translate([0,0,+bearingH/2])
 	difference(){
 		translate([0,0,-bearingH/2+sidewallthk])
@@ -59,9 +60,9 @@ module freewheel_model (shaft=30, spacebear=7.1/2){
 }
 
 module print_freewheel(){
-	translate([0,-(25+1)/2,0])
+	translate([0,-(30+1)/2,0])
 		freewheel();
-	translate([0,(25+1)/2,0])
+	translate([0,(30+1)/2,0])
 		freewheel();
 }
 
