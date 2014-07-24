@@ -1,3 +1,5 @@
+echo("WARNING : This is the depreciated version, kept for reference while refactoring");
+
 use <small_step.scad>;
 use <roundwave.scad>;
 echo("main picker assembly");

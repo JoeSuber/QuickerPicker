@@ -180,33 +180,42 @@ module contact_switch(len=13.4, dp=5.4, ht=6.4, blade_ht=65, bladew=1.8, bladeth
 	cube([len, dp, ht], center=false);
 		translate([.5+bladethk/2, dp/2, ht+blade_ht/2]) 
 			cube([bladethk, bladew, blade_ht], center=true);
-	}
 }
 
-			
+
 // main section, to be sliced apart for printing
 module main(baselevel=-46.8,
 		little_gear_rad=6){
+	
+
+
 	difference(){
 		translate([0,outextendo/2,-18])
 		union(){
-		
+			// grip the fan in an air-tight way
+			translate([0,-outextendo+13,-7.5]){
+				fanterface();
+				translate([0,-outextendo/2+13,-5])
+					cube([68,68,1.5], center=true);
+			}
 		// the big box 
 		// todo: cut down size of box, replacement of fan-surround with fanterface();
+		translate([0,0,-13])
 			minkowski(){
-			cube([outsidebox,outsidebox+outextendo,60], center=true);
-			cylinder(r=2, h=.1, $fn=20);
+			cube([outsidebox,outsidebox+outextendo,35], center=true);
+			cylinder(r=2.3, h=.1, $fn=20);
 			}
-		
-		// grip the fan in an air-tight way
-		fanterface();
-		
-		translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=8.8, h=26, center=true, $fn=64);
-		translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
-			cylinder(r=8.8, h=26, center=true, $fn=64);
+
 		}
+		// big hollowing out
+		fan();
 		
+		//translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
+		//	cylinder(r=8.8, h=26, center=true, $fn=64);
+		//translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
+		//	cylinder(r=8.8, h=26, center=true, $fn=64);
+
+		// @#@#@#@  cut-outs  @#@#@#@
 		// groove for gear
 		translate([0,0,-16])
 			ring(fanrad*2+5, fanrad*2-.1, gearheight);
@@ -221,9 +230,9 @@ module main(baselevel=-46.8,
 		
 		// linear bearing holders
 		translate([-bx, by, bz])
-			LMB6mm(rodlen=120);
+			LMB6mm(rodlen=80);
 		translate([bx, by, bz])
-			LMB6mm(rodlen=120);
+			LMB6mm(rodlen=80);
 		
 		// interior captured nuts for attachments to fan-housing
 		translate([-screwcenter, -(outsidebox-fanrad)+3, 0])
@@ -238,8 +247,8 @@ module main(baselevel=-46.8,
 			contact_switch();
 		translate([8, (outsidebox+outextendo)/2-9, -48.1]) rotate([0,0,-7])
 			contact_switch();
-		translate([-8, -(outsidebox)/2-5.5, -48.1]) rotate([0,0,0])
-			contact_switch();
+		//translate([-8, -(outsidebox)/2-5.5, -48.1]) rotate([0,0,0])
+		//	contact_switch();
 		
 		// ring mount bearings
 		forbearance();
@@ -257,8 +266,8 @@ module main(baselevel=-46.8,
 			cylinder(r=little_gear_rad, h=7, center=true, $fn=128);
 		
 		// thread passageway
-		translate([0,outsidebox/2+2.5, -16.3]) rotate([0,90,0])
-			cylinder(r=.7, h=60, center=true, $fn=6);
+		//translate([0,outsidebox/2+2.5, -16.3]) rotate([0,90,0])
+		//	cylinder(r=.7, h=60, center=true, $fn=6);
 	}
 }
 
@@ -361,18 +370,14 @@ translate([0,+outextendo,7/2]){
 rotate([0,180,0]) translate([0,0,-fanheight])
 	main_top();
 
-//print_gasket();
+inner_ring();
 
-//inner_ring();
+//spool();
 
-spool();
 rotate([0,0,-90]) translate([50,20,0])
 	can_holder();
 
 ring_holder();
-
-// m3nut(capture_channel=50, channel_dir=13);
-pusher_down();
 
 //contact_switch();
 
