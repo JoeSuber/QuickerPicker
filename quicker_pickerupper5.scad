@@ -3,6 +3,8 @@ use <roundwave.scad>;
 use <faninterface_ring.scad>;		// fanterface();
 use <608zz_run_free.scad>;
 use <my_motors.scad>;
+use <MCAD/involute_gears.scad>;
+
 //import <608zz_run_toshaft.stl>;
 
 echo("main picker assembly");
@@ -12,22 +14,17 @@ echo("main picker assembly");
 fanrad = 57/2;
 fanheight = 25;
 screwcenter = 48.5/2;
-// actual box outside is 2mm bigger due to curve
 outsidebox = 64.5;
 outextendo = 25.5;
 screwd = 1.6;
 gearheight = 7.1;
 pinrad = .865;
+
 // bearing placements
 bx=28;
 by=30+outextendo;
 bz=20;
-// flaps for airflow valve
-flapthick = 1.2;
-truss = 9;		// knobby bit on flap
-sprd = .6;
-knobrad = 1.2;		// on side of chamber
-lowknob = 9.5 + knobrad;  // distance from wire
+
 
 module gearmotor(l=25, w=12, h=10, r=3
 ){
@@ -141,8 +138,6 @@ module fan(side=60.2, w=fanheight, curve=3, screwcenter=screwcenter){
 			cube(size=[side-curve, side-curve, w], center=true);
 			cylinder(r=curve, h=.1, $fn=20);
 		}
-	//translate([29,20,0])
-	//	cube(size=[4, 2, 2], center=true);
 	echo("realside = ", realside);
 	}
 }
@@ -178,69 +173,66 @@ module forbearance(screw=screwcenter+4.75){
 		}
 	}
 }
+
+
 //small switch
-module contact_switch(len=13.4, dp=5.4, ht=6.4, blade_ht=65, bladew=1.8, bladethk=1){
+module contact_switch(len=13.4, dp=5.4, ht=6.4, blade_ht=65, bladew=1.8, bladethk=10.5){
 	cube([len, dp, ht], center=false);
-	for (i=[.5, 5, 10.5]){
-		translate([i+bladethk/2, dp/2, ht+blade_ht/2]) 
+		translate([.5+bladethk/2, dp/2, ht+blade_ht/2]) 
 			cube([bladethk, bladew, blade_ht], center=true);
 	}
 }
+
 			
-// main section
-module main(baselevel=-46.8){
+// main section, to be sliced apart for printing
+module main(baselevel=-46.8,
+		little_gear_rad=6){
 	difference(){
 		translate([0,outextendo/2,-18])
 		union(){
-		// the big box
+		
+		// the big box 
+		// todo: cut down size of box, replacement of fan-surround with fanterface();
 			minkowski(){
 			cube([outsidebox,outsidebox+outextendo,60], center=true);
 			cylinder(r=2, h=.1, $fn=20);
-		}		
+			}
+		
+		// grip the fan in an air-tight way
+		fanterface();
+		
 		translate([-bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
 			cylinder(r=8.8, h=26, center=true, $fn=64);
 		translate([bx, by*.6, bz/2+4.5]) scale([.4,1.8,1])
 			cylinder(r=8.8, h=26, center=true, $fn=64);
-		//translate([0, -by*1.48, bz/2+3]) scale([1.8,.4,1])
-		//	cylinder(r=9, h=26, center=true, $fn=64);
-		//translate([0,33.15/2,-12]) rotate([0,90,0])
-		//	cylinder(r=screwd, h=71, center=true, $fn=20);
-		//translate([0,0,-12]) rotate([0,90,0])
-		//	cylinder(r=screwd, h=71, center=true, $fn=20);
 		}
-		fan();
+		
 		// groove for gear
 		translate([0,0,-16])
 			ring(fanrad*2+5, fanrad*2-.1, gearheight);
-		// m3bearing bolt-head access
 		
-		// 4 pin holes for flap control
-		translate([0,0,-17-lowknob]) rotate([0,90,45])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-17-lowknob]) rotate([0,90,-45])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-21.5]) rotate([0,90,51])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
-		translate([0,0,-21.5]) rotate([0,90,-39])
-			cylinder(r=pinrad, h=fanrad*2+10, center=true, $fn=5);
 		// can is gripped here
 		translate([0,0,-38])
 			ring(64.75, 63, 25);
+		
 		// taper to can
 		translate([0,0,-45])
 			cylinder(r1=62.2/2, r2=fanrad, 12, center=true, $fn=64);
+		
 		// linear bearing holders
-		translate([-bx, by*.8, bz])
+		translate([-bx, by, bz])
 			LMB6mm(rodlen=120);
-		translate([bx, by*.8, bz])
+		translate([bx, by, bz])
 			LMB6mm(rodlen=120);
-		// captured nuts for attachments
+		
+		// interior captured nuts for attachments to fan-housing
 		translate([-screwcenter, -(outsidebox-fanrad)+3, 0])
 			rotate([90,0,0]) m3nut();
 		translate([screwcenter, -(outsidebox-fanrad)+3, 0])
 			rotate([90,0,0]) m3nut();
 		translate([0, -(outsidebox-fanrad)+3, 0])
 			rotate([90,0,0]) m3nut();
+		
 		//switches man, switches
 		translate([-29, (outsidebox+outextendo)/2+8, -48.1])
 			contact_switch();
@@ -248,23 +240,28 @@ module main(baselevel=-46.8){
 			contact_switch();
 		translate([-8, -(outsidebox)/2-5.5, -48.1]) rotate([0,0,0])
 			contact_switch();
+		
 		// ring mount bearings
 		forbearance();
-		// stepper for turning ring
+		
+		// stepper for turning ring - abandoned in favor of gearmotor
 		//translate([0,52,-11]) rotate([90,0,0])
 		//	small_stepper();
+		
 		// tiny gearmotor
 		translate([0,34.7,-1]) rotate([0,-90,90])
 			gearmotor();
+		
 		// spool mount hole for thread-drive of ring
 		translate([0,outsidebox/2+2.5, -16.0]) rotate([0,0,0])
-			cylinder(r=4.68, h=7, center=true, $fn=128);
+			cylinder(r=little_gear_rad, h=7, center=true, $fn=128);
+		
 		// thread passageway
 		translate([0,outsidebox/2+2.5, -16.3]) rotate([0,90,0])
 			cylinder(r=.7, h=60, center=true, $fn=6);
 	}
-
 }
+
 
 module main_bottom(){
 	difference(){
@@ -274,6 +271,7 @@ module main_bottom(){
 	}
 }
 
+
 module main_top(){
 translate([(outsidebox+10), +29, 26/2])
 	difference(){
@@ -282,8 +280,8 @@ translate([(outsidebox+10), +29, 26/2])
 			cube([100,100+outextendo,60], center=true);
 	}
 }
-module inner_ring(){
-// inner ring for printing
+
+module inner_ring(){				// inner ring for printing
 translate([outsidebox+3, +outextendo, 0])
 	difference(){
 		union(){
@@ -301,36 +299,11 @@ translate([outsidebox+3, +outextendo, 0])
 		// cut out from center
 		translate([0,0,-0.1])
 			cylinder(r1=fanrad-.6, r2=fanrad-.1, h=7.15, center=false, $fn=128);
-		// wire holder holes
-		translate([0,0,.9]) rotate([0,90,0])
-			cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
-		translate([0,0,.9]) rotate([90,0,0])
-			cylinder(r=pinrad, h=(fanrad+1)*2, center=true, $fn=6);
 	}
 }
 
-module print_gasket(screw=screwcenter+4.75){
-translate([(outsidebox+8), -(outsidebox+5), 21])
-	difference(){
-		main_bottom();
-		
-		translate([0,0+outextendo/2,-50])
-			cube([100,100+outextendo,58], center=true);
-		translate([0,0+outextendo/2,-10])
-			cube([100,100+outextendo,15.5], center=true);
-		translate([0,0+outextendo/2,-10])
-			cube([100,100+outextendo,15.5], center=true);
-		for (z = [[screw,screw],
-				[screw,-screw],
-				[-screw,screw],
-				[-screw,-screw]]){
-			// m3 hex-bolt-heads
-			translate(z) translate([0,0,-21.75+1.5])
-				cylinder(r=2.75, h=3, center=true, $fn=12);
-		}
-	}
-}
-module can_holder(){
+
+module can_holder(){				// aka bottom part
 translate([0, 0, 23+(50/2)])
 	difference(){
 	translate([0,-(outsidebox+5),0])
@@ -340,7 +313,8 @@ translate([0, 0, 23+(50/2)])
 	}
 }
 
-module ring_holder(){
+
+module ring_holder(){				// holds bearings holding ring that shuts off air
 translate([0,0+outextendo+1,22])
 	difference(){
 		main_bottom();
@@ -349,44 +323,14 @@ translate([0,0+outextendo+1,22])
 	}
 }
 
-module spool(){
-// round thread puller for motor attach
-//first some spacers for flap-wires
-translate([15,+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-translate([-15,+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-translate([-10,+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-translate([10,+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-translate([0,-10+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-translate([0,10+outextendo,0])
-	difference(){
-		cylinder(r=pinrad+1, h=12, center=false, $fn=18);
-		cylinder(r=pinrad+.1, h=12.1, center=false, $fn=18);
-	}
-	// remember to adjust socket in main if changing radius here
+
+module spool(){			// gear motor turns ring via this
+// remember to adjust socket in main if changing radius here
 translate([0,+outextendo,7/2]){
 	difference(){
-	translate([0,0,-7/2]) union(){
-	cylinder(r1=4.5,r2=4.2, h=1.5, center=false, $fn=128);
+	translate([0,0,-7/2]) 
+	union(){
+		cylinder(r1=4.5,r2=4.2, h=1.5, center=false, $fn=128);
 	translate([0,0,1.5])
 		cylinder(r1=4.2,r2=4.65, h=1.5, center=false, $fn=128);
 	translate([0,0,3])
