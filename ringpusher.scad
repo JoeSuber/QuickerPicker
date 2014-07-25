@@ -53,7 +53,7 @@ module tray(floorthk=0, scaledif=.05, sideslope=1.4, scooph=scoopheight){
 }
 
 
-translate([0,0,-scoopheight/2]) squaremm(cardsize[0]);
+translate([0,0,0]) minkowski(){ squaremm(cardsize[0]*1.4+3); sphere(r=2, h=3, $fn=36, center=true);}
 tray();
 
 		
