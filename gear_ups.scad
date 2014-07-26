@@ -62,13 +62,13 @@ gear (number_of_teeth=21,
 	flat=false);
 
 module airgear(mbig=mbigbox, holescale=0.78, tranz=0, spin=0){
-	translate([46,0,7+tranz]) rotate([180,0,spin]){
+	translate([16,0,7+tranz]) rotate([180,0,spin]){
 		//mbox(mb=mbig);
 		difference(){
 			gear (number_of_teeth=75,
 				circular_pitch=2*23.2*3.141592654,
 				gear_thickness = 1.46,
-				rim_thickness = 7,
+				rim_thickness = 2,
 				hub_thickness = 7,
 				pressure_angle=23,
 				clearance = 0.3,
