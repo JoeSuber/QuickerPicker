@@ -41,6 +41,12 @@ module mbox(mb=measurebox){
 		cube([mb,mb,.6], center=true);
 		cube([.93*mb,.93*mb,1.1], center=true);
 	}
+	difference(){
+		cylinder(r=mb/2, h=.6, center=true, $fn=36);
+		cylinder(r=.93*mb/2, h=.7, center=true, $fn=36);
+	}
+	echo("MEASURE-box outside-sides are ",mb);
+	echo("MEASURE-box inside is ",mb*.93);
 }
 
 mbox();
