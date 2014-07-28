@@ -3,7 +3,7 @@ use <roundwave.scad>;
 use <faninterface_ring.scad>;		// fanterface();
 use <608zz_run_free.scad>;
 use <my_motors.scad>;
-use <MCAD/involute_gears.scad>;
+use <gear_ups.scad>;
 
 //import <608zz_run_toshaft.stl>;
 
@@ -38,13 +38,13 @@ module gearmotor(l=25, w=12, h=10, r=3
 
 }
 
-module m3nut(d=6.4, 			// nut at end of bolt for cut-outs also has access tunnel
-				h=2.7, 
+module m3nut(d=6.6, 			// nut at end of bolt for cut-outs also has access tunnel
+				h=2.5, 
 				rodd=3.1, 
 				rodlen=19, 
 				hdled=3, 
 				hdrad=6/2, 
-				capture_channel=20, 
+				capture_channel=30, 
 				channel_dir=90, 
 				fat=.1){
 	translate([0,0,-rodlen/2+h/2]){
@@ -80,7 +80,7 @@ module LMB6mm(OD=12,
 				ID=6, len=18.86, 
 				stripe=1.25, 
 				stripe_to_end=2.66, 
-				rodlen=100){
+				rodlen=70){
 difference(){
 	union(){
 		// body of bearing, stacked up
@@ -142,15 +142,6 @@ module fan(side=60.2, w=fanheight, curve=3, screwcenter=screwcenter){
 	}
 }
 
-module nut_insert(nutrad=6.15/2, nutheight=2.6, into=6, direction=-1) {
-// slide in captured nuts
-	hull(){
-		cylinder(r=nutrad, h=nutheight, center=true, $fn=6);
-		translate([into*direction,0, 0])
-			cylinder(r=nutrad, h=nutheight, center=true, $fn=6);
-		}
-}		
-
 module forbearance(screw=screwcenter+4.75){
 // bearings cut into four corners
 	for (z = [[screw,screw],
@@ -186,9 +177,6 @@ module contact_switch(len=13.4, dp=5.4, ht=6.4, blade_ht=65, bladew=1.8, bladeth
 // main section, to be sliced apart for printing
 module main(baselevel=-46.8,
 		little_gear_rad=6){
-	
-
-
 	difference(){
 		translate([0,outextendo/2,-18])
 		union(){
@@ -229,9 +217,9 @@ module main(baselevel=-46.8,
 			cylinder(r1=62.2/2, r2=fanrad, 12, center=true, $fn=64);
 		
 		// linear bearing holders
-		translate([-bx, by, bz])
+		translate([-bx, by, bz/2])
 			LMB6mm(rodlen=80);
-		translate([bx, by, bz])
+		translate([bx, by, bz/2])
 			LMB6mm(rodlen=80);
 		
 		// interior captured nuts for attachments to fan-housing
@@ -295,19 +283,20 @@ translate([outsidebox+3, +outextendo, 0])
 	difference(){
 		union(){
 			// bottom bevel grabber
-			cylinder(r1=fanrad+2.1, r2=fanrad+1.8, h=.5, center=false, $fn=128);
+			cylinder(r1=fanrad+2.1, r2=fanrad+1.8, h=.7, center=true, $fn=128);
 			// mid-section w/ thread	
-			translate([0,0,0.5])
-				cylinder(r1=fanrad+1.8, r2=fanrad+1.4, h=3, center=false, $fn=128);
-			translate([0,0,3.5])
-				cylinder(r1=fanrad+1.4, r2=fanrad+1.8, h=3, center=false, $fn=128);
+			translate([0,0,0.7])
+				airgear();
+			//	cylinder(r1=fanrad+1.8, r2=fanrad+1.4, h=3, center=false, $fn=128);
+			//translate([0,0,3.5])
+			//	cylinder(r1=fanrad+1.4, r2=fanrad+1.8, h=3, center=false, $fn=128);
 			// top bevel grabber
-			translate([0,0,6.5])
-				cylinder(r1=fanrad+1.8, r2=fanrad+2.1, h=.5, center=false, $fn=128);
+			translate([0,0,6.4])
+				cylinder(r1=fanrad+1.8, r2=fanrad+2.1, h=.7, center=true, $fn=128);
 		}
 		// cut out from center
 		translate([0,0,-0.1])
-			cylinder(r1=fanrad-.6, r2=fanrad-.1, h=7.15, center=false, $fn=128);
+			cylinder(r1=fanrad-.6, r2=fanrad-.1, h=7.4, center=true, $fn=128);
 	}
 }
 
@@ -365,19 +354,21 @@ translate([0,+outextendo,7/2]){
 	}
 }}
 
-
-// samples for export
-rotate([0,180,0]) translate([0,0,-fanheight])
-	main_top();
+main();
 
 inner_ring();
+// samples for export
+//rotate([0,180,0]) translate([0,0,-fanheight])
+	//main_top();
+
+//inner_ring();
 
 //spool();
 
-rotate([0,0,-90]) translate([50,20,0])
-	can_holder();
+//rotate([0,0,-90]) translate([50,20,0])
+	//can_holder();
 
-ring_holder();
+//ring_holder();
 
 //contact_switch();
 
