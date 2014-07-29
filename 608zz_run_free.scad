@@ -59,6 +59,10 @@ module freewheel_model (shaft=30, spacebear=7.1/2){
 	}
 }
 
+
+// print (in two halves) a snug fitting pully
+// so that thread runs on steel
+
 module print_freewheel(){
 	translate([0,-(30+1)/2,0])
 		freewheel();
@@ -67,5 +71,7 @@ module print_freewheel(){
 }
 
 //freewheel_model();
+
 print_freewheel();
+
 //my_bearing_cutter();
