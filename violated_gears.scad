@@ -1,20 +1,6 @@
-// Parametric Involute Bevel and Spur Gears by GregFrost
-// It is licensed under the Creative Commons - GNU LGPL 2.1 license.
-// © 2010 by GregFrost, thingiverse.com/Amp
-// http://www.thingiverse.com/thing:3575 and http://www.thingiverse.com/thing:3752
+// this is NOT the ORIGINAL involute_gears.scad found in openscad libraries
+// changes were made to get desired output from bevel_gear_pair()
 
-// Simple Test:
-//gear (circular_pitch=700,
-//	gear_thickness = 12,
-//	rim_thickness = 15,
-//	hub_thickness = 17,
-//	circles=8);
-
-//Complex Spur Gear Test:
-//test_gears ();
-
-// Meshing Double Helix:
-//test_meshing_double_helix ();
 
 module test_meshing_double_helix(){
     meshing_double_helix ();
