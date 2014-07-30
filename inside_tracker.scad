@@ -1,7 +1,7 @@
 
 $fn=32;
-sleeve_height=35;
-sleeve_inside=30;
+sleeve_height=57;
+sleeve_inside=31;
 sleeve_wall=5;
 
 // burrower is to be used 6 times, one on each section to make a circle-groove
@@ -15,7 +15,7 @@ module burrower (degrees=360/6,
 					huck=24,				// fine-ness of cutter '$fn'
 					){
 		echo("currentline = ", currentline, " section = ", section_num);
-		for (i=[0:degrees/quant:degrees- (degrees/quant)*.5]){
+		for (i=[0 : degrees/quant : degrees - (degrees/quant)*.5]){
 			rotate([0, 0, i])
 			translate([radius, 0, currentline - upndown*cos(i/degrees*180)*.5 + upndown/2])
 				sphere(r=bulge, center=true, $fn=huck);
@@ -25,7 +25,7 @@ module burrower (degrees=360/6,
 s=12;
 q=10;
 lvl1 = 28;
-lvl2 = 47;
+lvl2 = 53;
 digmap = [[1, lvl1, 0], [2, lvl1, -s], [3, lvl1-s , -s], [4, lvl1-s-s ,s], [5, lvl1-s, s], [6, lvl1, 0] ];
 
 airmap = [[1,lvl2,-q], [2, lvl2-q, -q], [3, lvl2-2*q, 0], [4, lvl2-2*q , 0], [5, lvl2-2*q ,q], [6, lvl2-q, q]];
@@ -34,24 +34,24 @@ module digdug (sections=6, instructions=digmap){
 	for (shovel=instructions){
 	rotate([0,0,(shovel[0]-1)*(360/sections)]){
 		if (shovel[0] < 3){
-			#burrower(currentline=shovel[1], 
+			burrower(currentline=shovel[1], 
 						section_num=shovel[0], upndown=shovel[2]);
 			echo("section ",shovel[0]," is done");
 		}
 		else {
-			%burrower(currentline=shovel[1], 
+			burrower(currentline=shovel[1], 
 						section_num=shovel[0], upndown=shovel[2]);
 		}
 	}
 	}
 }
 
-//difference(){
-//	translate([0,0,sleeve_height/2])
-//		sleeve(outside_r=sleeve_inside+sleeve_wall, inside_r=sleeve_inside, ht=sleeve_height);
+difference(){
+	translate([0,0,sleeve_height/2])
+		sleeve(outside_r=sleeve_inside+sleeve_wall, inside_r=sleeve_inside, ht=sleeve_height);
 	digdug();
 	digdug(instructions=airmap);
-//}
+}
 
 module sleeve(outside_r=sleeve_inside+sleeve_wall, 
 				inside_r=sleeve_inside,
