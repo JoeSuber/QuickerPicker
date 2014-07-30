@@ -21,7 +21,7 @@ $fn=128;
 
 part---- 		extender:					airholes:
 				1	2	3	4	5	6		1	2	3	4	5	6
-up / on		-				-	-				-	-	-
+up / on			-				-	-				-	-	-
 
 mid / trans			-		-					-				-
 
@@ -30,7 +30,7 @@ down / off				-					-
 'side-1' is the top horizontal section of the hexagon.
 We go clockwise from there, viewed with normal axis
 
-relative seperation:		1	2	3	4	5	6
+relative separation:	1	2	3	4	5	6
 			max+		-					
 			mid+							-
 			none			-			-

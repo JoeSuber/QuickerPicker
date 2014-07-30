@@ -1,3 +1,7 @@
+use <faninterface_ring.scad>;
+use <inside_tracker.scad>;
+//use <MCAD/regular_shapes.scad>;
+use <eggs.scad>;
 // from faninterface
 blades=56.9; 		//55.8
 roundwall=57.36; 	//min measure, varies wider near corners
@@ -13,19 +17,28 @@ sleeve_height=57;
 sleeve_inside=31;
 sleeve_wall=5;
 
-use <inside_tracker.scad>;
-sleeve(outside_r=cubein/2 + sleeve_wall, 
-		inside_r=cubein/2,
-		ht=sleeve_height);
+// chosen here!
+deckthick= 12;
+corn= 2;
 
-translate([0,0,sleeve_height/2 - coneheight]){
-	difference(){
-		scale([2,1.2,1])
-		cylinder(r=conebase/2, h=coneheight*2, center=true, $fn=128);
-		translate([0,0,1])
-		cylinder(r=roundwall/2, h=coneheight*2 -1, center=true, $fn=64);
-	}
+//translate([0,0,deckthick+coneheight/2])
+//    fanterface();
+
+difference(){
+    scale([2,1.3,1]) translate([0,0,deckthick/2])
+        minkowski(){
+		    cylinder(r=cubeout/2, h=deckthick-corn*2, center=true, $fn=64);
+            rotate([90,0,0]) cylinder(h=2, r=corn, center=true, $fn=36);
+        }
+    translate([0,0,1.2])
+    cylinder(r=cubein/2, h=deckthick+.1, $fn=128);
+    //cylinder_tube(10,70,3,center=true);
+    //translate([0,0, -.1])
+    difference(){
+        cylinder(r=70, h=5, center=false, $fn=128);
+        cylinder(r=65, h=5, center=false, $fn=128);
+    }
+    translate([0,0, -6.0])
+    stopper_egg_basket();
 }
 
-translate([0,0,sleeve_height/2+coneheight/2])
-	import("faninterface_ring.stl");

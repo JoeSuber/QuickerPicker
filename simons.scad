@@ -13,7 +13,7 @@ fingerspace=37;
 holeside=sensorhole + sides*2 + fingerspace;	// accomodate lense assembly
 cornerad=4;						// used with minkowski(), cornerad*2 + 4-flat-sides = perimeter
 small_chamber = 1/3;				// total of chambers' ratios should == 1 unless center wall gets thicker
-big_chamber = 2/3;				// chambers can be swapped, or center wall can dissapear
+big_chamber = 2/3;				// chambers can be swapped, or center wall can disappear
 slit_width = 5;						// mm
 cuvtt_inside = 12.1;					// put cuvette into a lid, slide detector assm into lid-grooves, put other lid on.
 lid_lad = 5;						// basic lid thickness
