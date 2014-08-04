@@ -81,27 +81,18 @@ module turnypart(mid=sleeve_height/2, saturn=10, ringthick=1){
                 translate([sleeve_inside, 0, mid])
                     polygon(points=[[0,0],
                             [0, mid],
-                            [1, mid],
-                            [1 + 4.36/2, mid - 4.36/2],
-                            [4.36, mid],
-                            [5.36, mid],
-                            [10, mid - 10],
-                            [10, mid - 11],
-                            [9, mid - 11],
-                            [4, mid - 16],
-                            [5.3, mid - 17.5],
-                            [4, mid - 19],
-                            [4, -mid],
+                            [.5, mid],
+                            [1 + 4.4/2, mid - 4.4/2],
+                            [4.4+1, mid],
+                            [5.9, mid],
+                            [8, mid - 6],
+                            [8, mid - 7],
+                            [3.3, mid - 15],
+                            [3.3, mid - 18],
+                            [3.3, -mid],
                             [0, -mid]]);
-            //sleeve(outside_r=sleeve_outside+ringthick, inside_r=sleeve_outside-.1, ht=saturn);
             }
-        // outside tracks for bearings
-        //translate([0,0,mid])
-        //    sleeve(outside_r=sleeve_outside+1, inside_r=sleeve_outside+.4, ht=7.1);
-        //translate([0,0,mid])
-         //   sleeve(outside_r=sleeve_outside+.41, inside_r=sleeve_outside, ht=6.4);
         }
-
 }
 //turnypart();
 
@@ -159,14 +150,40 @@ module turner_cutter (mid=sleeve_height/2, saturn=10, ringthick=1){
             }
         }
 }
-rotate([180,0,0])
-translate([0,0,-60])
-difference(){
-    translate([0,0,sleeve_height - sleeve_height/5 + 3])
-    cylinder(r1=sleeve_inside, r2=sleeve_inside+13, h=sleeve_height/5, $fn=128);
-    rotate([0,0,0])
-        turner_cutter();
-    cylinder(r=sleeve_inside -2, h=100, $fn=128);
+
+module turn_cut_bracket(sup=4, widest=sleeve_inside+9){
+    rotate([180,0,0])
+    translate([0,0,-60])
+    difference(){
+        translate([0,0,sleeve_height - sleeve_height/sup + 3])
+        cylinder(r1=sleeve_inside, r2=widest+sup, 
+                    h=sleeve_height/sup, $fn=128);
+        rotate([0,0,0])
+            turner_cutter();
+        cylinder(r=sleeve_inside -2, h=100, $fn=128);   
+    }
 }
 
+module turn_cut_bolts(widest=40.5){
+    difference(){
+        turn_cut_bracket(widest=widest);
+        for (i=[0:120:359]){
+            translate([cos(i)*widest, sin(i)*widest, 0]){
+                cylinder(r=6.12/2, h=20, center=true, $fn=12);
+                //translate([0,0,5])
+                //    cylinder(r=12.42/2, h=5.5, center=false, $fn=6);
+            echo("bolts at: ",[cos(i)*widest, sin(i)*widest]);
+            }
+        } 
+    }
+}
+translate([-42,0,0])
+turn_cut_bolts();
 
+module new_gear(){
+        turnypart(mid=9);
+    translate([0,0,8.63]) rotate([0,180,0])
+        import("whiskers_big.stl");
+}
+translate([42,0,0])
+new_gear();
