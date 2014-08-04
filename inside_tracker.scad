@@ -13,7 +13,7 @@ include <MCAD/regular_shapes.scad>;
 
 digmap = [[1, lvl1, 0], [2, lvl1, -s], [3, lvl1-s , -s], [4, lvl1-s-s ,s], [5, lvl1-s, s], [6, lvl1, 0] ];
 
-airmap = [[1, lvl2, -q], [2, lvl2-q, 0], [3, lvl2-q, 0], [4, lvl2-q, 0], [5, lvl2-q, q], [6, lvl2, 0]];
+airmap = [[1, lvl2-q, 0], [2, lvl2-q, 0], [3, lvl2-q, 0], [4, lvl2-q, q], [5, lvl2, 0], [6, lvl2, -q]];
 
 
 // burrower is to be used 6 times, one on each section to make a circle-groove
@@ -57,8 +57,8 @@ module digdug (sections=6, instructions=digmap){
 	}
 }
 
-digdug();
-digdug(instructions=airmap);
+//digdug();
+//digdug(instructions=airmap);
 
 module sleeve(outside_r=sleeve_inside+sleeve_wall, 
 				inside_r=sleeve_inside,
@@ -117,4 +117,56 @@ translate([0,0,sleeve_height/2+11]) rotate([0,180,0])
 }
 //rotate([180,0,0])
 //turn_n_burn();
+
+module turner_cutter (mid=sleeve_height/2, saturn=10, ringthick=1){
+	translate([0,0,mid])
+        union(){
+            // main tube fattened to cut clearance from picker body
+            rotate_extrude(convexity=10, center=true, $fn=128){
+                translate([sleeve_inside+.5, 0, mid])
+                    polygon(points=[[0,0],
+                            [0, mid],
+                            [1, mid],
+                            [.5 + 4.36/2, mid + 4.36/2],
+                            [4.36, mid],
+                            [5.36, mid],
+                            [10, mid - 10],
+                            [10, mid - 11],
+                            [9, mid - 11],
+                            [4, mid - 16],
+                            [5.3, mid - 17.5],
+                            [4, mid - 19],
+                            [4, -mid],
+                            [0, -mid]]);
+            }
+            rotate_extrude(convexity=10, center=true, $fn=128){
+                translate([sleeve_inside-.5, 0, mid])
+                    polygon(points=[[0,0],
+                            [0, mid],
+                            [1, mid],
+                            [1 + 4.36/2, mid + 4.36/2],
+                            [4.36, mid],
+                            [5.36, mid],
+                            [10, mid - 10],
+                            [10, mid - 11],
+                            [9, mid - 11],
+                            [4, mid - 16],
+                            [5.3, mid - 17.5],
+                            [4, mid - 19],
+                            [4, -mid],
+                            [0, -mid]]);
+
+            }
+        }
+}
+rotate([180,0,0])
+translate([0,0,-60])
+difference(){
+    translate([0,0,sleeve_height - sleeve_height/5 + 3])
+    cylinder(r1=sleeve_inside, r2=sleeve_inside+13, h=sleeve_height/5, $fn=128);
+    rotate([0,0,0])
+        turner_cutter();
+    cylinder(r=sleeve_inside -2, h=100, $fn=128);
+}
+
 
