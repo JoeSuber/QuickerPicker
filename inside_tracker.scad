@@ -13,7 +13,7 @@ include <MCAD/regular_shapes.scad>;
 
 digmap = [[1, lvl1, 0], [2, lvl1, -s], [3, lvl1-s , -s], [4, lvl1-s-s ,s], [5, lvl1-s, s], [6, lvl1, 0] ];
 
-airmap = [[1,lvl2,-q], [2, lvl2-q, -q], [3, lvl2-2*q, 0], [4, lvl2-2*q , 0], [5, lvl2-2*q ,q], [6, lvl2-q, q]];
+airmap = [[1, lvl2, -q], [2, lvl2-q, 0], [3, lvl2-q, 0], [4, lvl2-q, 0], [5, lvl2-q, q], [6, lvl2, 0]];
 
 
 // burrower is to be used 6 times, one on each section to make a circle-groove
@@ -57,7 +57,8 @@ module digdug (sections=6, instructions=digmap){
 	}
 }
 
-//digdug();
+digdug();
+digdug(instructions=airmap);
 
 module sleeve(outside_r=sleeve_inside+sleeve_wall, 
 				inside_r=sleeve_inside,
@@ -114,6 +115,6 @@ module turn_n_burn(){
 translate([0,0,sleeve_height/2+11]) rotate([0,180,0])
     import("whiskers_big.stl");
 }
-rotate([180,0,0])
-turn_n_burn();
+//rotate([180,0,0])
+//turn_n_burn();
 
