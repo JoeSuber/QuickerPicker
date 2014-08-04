@@ -15,8 +15,10 @@ module gearbear() {
 			import("whiskers_small.stl");
 	
 		cylinder(r=1.65, h=18, center=true, $fn=12);
-		translate([0,0,5.5]) 
-			cylinder(r=5.5/2, h=2.67, center=true, $fn=12);
+		translate([0,0,6]) 
+			cylinder(r=5.6/2, h=2.2, center=true, $fn=16);
+		translate([0,0,4.6]) 
+			cylinder(r1=1.5, r2=5.6/2, h=1, center=true, $fn=16);
 		}
 }
 
@@ -33,6 +35,34 @@ module d_shaft(hexplugD=6.0, hexplugH=4, shaftrad=1.69, fraction_cut=5){
 	}
 }
 
+module armplate(midlen=16){
+    difference(){
+    linear_extrude(height=3, convexity=10){
+        difference(){
+            hull(){
+                translate([-midlen,0,0])
+                    circle(r=6);
+                translate([midlen,0,0])
+                    circle(r=6, $fn=16);
+            }
+            for (i=[2:midlen*2/3:midlen*2-1]){
+                translate([i - midlen, 0, 0]){               
+                    circle(r=1.66, $fn=16);
+                }
+            }
+            
+        }
+    }
+    for (i=[2:midlen*2/3:midlen*2-1]){
+        translate([i - midlen, 0, 1])               
+                cylinder(r=6.3/2, h=2.1, $fn=6);
+    }
+    }
+}
+
+translate([20,0,0]) rotate([0,0,90])
+    armplate();
+
 translate([0,0,6])
 	gearbear();
 
@@ -42,5 +72,11 @@ translate([-20,0,6])
 translate([-12,15,6])
 	gearbear();
 
-translate([0,15,0])
+translate([2,16,0])
+	d_shaft();
+translate([6,20,0])
+	d_shaft();
+translate([10,24,0])
+	d_shaft();
+translate([14,29,0])
 	d_shaft();
