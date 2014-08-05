@@ -2,23 +2,29 @@
 echo("turner.scad - small gears for runners and drive of big gear, with nut-d_shaft insert");
 echo(".... uses stl import of 'whiskers_small.stl'");
 
-module gearbear() {
+insideB = 7.96/2;
+nutd = 6.5/2;
+
+module gearbear(nutd=nutd) {
+    // bearing insert
 	difference(){
-		cylinder(r=7.97/2, h=7.1, center=false, $fn=24);
-		cylinder(r=1.65, h=7.1, center=false, $fn=12);
-		translate([0,0,0+7.1])
-			cylinder(r=6.3/2, h=5, center=true, $fn=6);
+		cylinder(r=insideB, h=10.1, center=false, $fn=36);
+        translate([0,0,0-.05])
+		cylinder(r=1.66, h=10.1, center=false, $fn=16);
+		translate([0,0,0+10])
+			cylinder(r=nutd, h=5, center=true, $fn=6);
 	}
-	rotate([180,0,0])
+    // gear and it's subtractions
+	rotate([0,0,0])
 		difference(){
-		translate([0,-47.8,0]) 
+		translate([0,-47.8,-5.6]) 
 			import("whiskers_small.stl");
-	
-		cylinder(r=1.65, h=18, center=true, $fn=12);
-		translate([0,0,6]) 
-			cylinder(r=5.6/2, h=2.2, center=true, $fn=16);
-		translate([0,0,4.6]) 
-			cylinder(r1=1.5, r2=5.6/2, h=1, center=true, $fn=16);
+        // m3 thread bolt
+		cylinder(r=1.66, h=18, center=true, $fn=16);
+        translate([0,0,-5.7])
+            cylinder(r1=nutd, r2=nutd-.05, h=1.6, center=false, $fn=6);
+        translate([0,0,-5.7+1.5])
+        cylinder(r1=nutd-.05, r2=1.66, h=2, center=false, $fn=16);
 		}
 }
 
@@ -35,48 +41,83 @@ module d_shaft(hexplugD=6.0, hexplugH=4, shaftrad=1.69, fraction_cut=5){
 	}
 }
 
-module armplate(midlen=16){
+module armplate(midlen=16, rad=nutd, thick=3.6, stubs=false){
     difference(){
-    linear_extrude(height=3, convexity=10){
-        difference(){
-            hull(){
-                translate([-midlen,0,0])
-                    circle(r=6);
-                translate([midlen,0,0])
-                    circle(r=6, $fn=16);
+        linear_extrude(height=thick, convexity=10){
+            difference(){
+                hull(){
+                    translate([-midlen,0,0])
+                        circle(r=rad*2, $fn=20);
+                    translate([midlen,0,0])
+                        circle(r=rad*2, $fn=20);
+                }
+                for (i=[rad*2/3:rad*4:midlen*2-rad/6]){
+                    translate([i - midlen, 0, 0]){
+                        echo("armplate bolt-hole center at: ", i-midlen);               
+                        circle(r=1.66, $fn=16);
+                    }
+                }
+                
             }
-            for (i=[2:midlen*2/3:midlen*2-1]){
-                translate([i - midlen, 0, 0]){               
-                    circle(r=1.66, $fn=16);
+        }
+        for (i=[rad*2/3:rad*4:midlen*2-rad/6]){
+            translate([i - midlen, 0, 1]){             
+                    cylinder(r=rad, h=thick-1, $fn=6);
+                    translate([0,0,thick-2])
+                        cylinder(r=insideB+.1, h=2, center=false, $fn=24);
+            echo("armplate nut-hole center at: ", i-midlen);
+            if (stubs > 0){
+                d_shaft(hexplugH=6, fraction_cut=100);
                 }
             }
-            
         }
-    }
-    for (i=[2:midlen*2/3:midlen*2-1]){
-        translate([i - midlen, 0, 1])               
-                cylinder(r=6.3/2, h=2.1, $fn=6);
-    }
     }
 }
 
-translate([20,0,0]) rotate([0,0,90])
+module armnhammer(stubs=true){
+
+    armplate(midlen=9, stubs=2);
+
+}
+
+module gear_nut(){
+	    gearbear(nutd=3);
+        translate([0,0,8])
+            difference(){
+            cylinder(r=nutd-.25, h=3.5, $fn=6);
+            translate([0,0,-.1])
+                cylinder(r=1.66, h=10, $fn=12);
+            }
+}
+
+module elbow(rad=nutd, thk=2){
+   translate([0,0,thk/2]){
+        cylinder(r=rad+.13, h=thk, center=true, $fn=24);
+        d_shaft();
+    }
+}
+   
+
+translate([20,0,0]) rotate([0,0,90]){
     armplate();
+    translate([0,-14,0])
+    armnhammer();
+}
 
-translate([0,0,6])
+translate([0,0,5.8]){
+	    gearbear();
+
+}
+
+translate([-20,0,5.8])
 	gearbear();
 
-translate([-20,0,6])
-	gearbear();
+translate([-20,0,0])
+    elbow();
 
 translate([-12,15,6])
-	gearbear();
+    gear_nut();
 
 translate([2,16,0])
 	d_shaft();
-translate([6,20,0])
-	d_shaft();
-translate([10,24,0])
-	d_shaft();
-translate([14,29,0])
-	d_shaft();
+

@@ -151,25 +151,49 @@ module turner_cutter (mid=sleeve_height/2, saturn=10, ringthick=1){
         }
 }
 
-module turn_cut_bracket(sup=4, widest=sleeve_inside+9){
+module turn_cut_bracket(sup=4, widest=sleeve_inside+9, makebearings=1 ){
     rotate([180,0,0])
     translate([0,0,-60])
     difference(){
+        union(){
         translate([0,0,sleeve_height - sleeve_height/sup + 3])
         cylinder(r1=sleeve_inside, r2=widest+sup, 
                     h=sleeve_height/sup, $fn=128);
+            if (makebearings==1){
+                echo("Hi there");
+                translate([0,0, 19])
+
+                cylinder(r=sleeve_inside-.5, h= 28, $fn=128);
+            }
+        }
         rotate([0,0,0])
             turner_cutter();
         cylinder(r=sleeve_inside -2, h=100, $fn=128);   
     }
 }
 
-module turn_cut_bolts(widest=40.5){
+module turn_cut_bolts(widest=40.5, makebearing=1){
     difference(){
-        turn_cut_bracket(widest=widest);
+        turn_cut_bracket(widest=widest, makebearings=makebearing);
         for (i=[0:120:359]){
             translate([cos(i)*widest, sin(i)*widest, 0]){
-                cylinder(r=6.12/2, h=20, center=true, $fn=12);
+                // outside rim sandwich holders
+                cylinder(r=6.2/2, h=20, center=true, $fn=12);
+                // punch into side bearings
+                if (makebearing==1){                
+                    rotate([i,90,360-i])
+                    translate([-28,0,0]){           // height from floor
+                        #cylinder(r=8/2, h=60, center=true, $fn=18);
+                        translate([0,0,-17.0]){     // depth into sides
+                        #cylinder(r=11, h=6.45, $fn=32, center=true);
+                        translate([0,0,.5])
+                        #cylinder(r=13.28/2, h=7.5, $fn=32, center=true);
+                        translate([0,0,3.5])
+                        #cylinder(r1=11, r2=10.5, h=.5, $fn=32, center=true);
+                        }
+                       }
+                }
+
                 //translate([0,0,5])
                 //    cylinder(r=12.42/2, h=5.5, center=false, $fn=6);
             echo("bolts at: ",[cos(i)*widest, sin(i)*widest]);
@@ -180,10 +204,11 @@ module turn_cut_bolts(widest=40.5){
 translate([-42,0,0])
 turn_cut_bolts();
 
+
 module new_gear(){
         turnypart(mid=9);
     translate([0,0,8.63]) rotate([0,180,0])
         import("whiskers_big.stl");
 }
-translate([42,0,0])
-new_gear();
+//
+// translate([42,0,0]) new_gear();
