@@ -16,7 +16,7 @@ difference(){
 	scale([.319,.319,.319])
 		bevel_gear_pair (
 			gear1_teeth = 41,
-			gear2_teeth = 7,
+			gear2_teeth = 8,
 			axis_angle = 90,
 			outside_circular_pitch=1000);
 

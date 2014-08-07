@@ -1,7 +1,7 @@
 
 $fn=32;
 sleeve_height=57;
-sleeve_inside=29;
+sleeve_inside=32.27;
 sleeve_wall=4.8;
 sleeve_outside=sleeve_inside+sleeve_wall;
 s=8;
@@ -74,6 +74,7 @@ module sleeve(outside_r=sleeve_inside+sleeve_wall,
 
 // make a sleeve with all the extra parts so it can be diff'd with the tubes lastly
 module turnypart(mid=sleeve_height/2, saturn=10, ringthick=1){
+    echo("turnypart (gear-crown) constructed with mid = ", mid);
 	translate([0,0,mid])
         union(){
             // main tube
@@ -82,20 +83,20 @@ module turnypart(mid=sleeve_height/2, saturn=10, ringthick=1){
                     polygon(points=[[0,0],
                             [0, mid],
                             [.5, mid],
-                            [1 + 4.4/2, mid - 4.4/2],
-                            [4.4+1, mid],
-                            [5.9, mid],
-                            [8, mid - 6],
-                            [8, mid - 7],
-                            [3.3, mid - 15],
-                            [3.3, mid - 18],
-                            [3.3, -mid],
-                            [0, -mid]]);
+                            [1 + 4.6/2, mid - 4.6/2],
+                            [4.6+1, mid],
+                            [6.1, mid],
+                            [7, mid - 6],
+                            [7, mid - 7],
+                            [4, mid - 10],
+                            //[2, mid - 10],
+                            ]);
             }
         }
 }
 //turnypart();
 
+// no longer using burrower, digdug etc.
 module turn_n_burn(){
 // for printing/modeling the whole thing
     difference(){
@@ -117,54 +118,43 @@ module turner_cutter (mid=sleeve_height/2, saturn=10, ringthick=1){
                 translate([sleeve_inside+.5, 0, mid])
                     polygon(points=[[0,0],
                             [0, mid],
-                            [1, mid],
-                            [.5 + 4.36/2, mid + 4.36/2],
-                            [4.36, mid],
-                            [5.36, mid],
-                            [10, mid - 10],
-                            [10, mid - 11],
-                            [9, mid - 11],
-                            [4, mid - 16],
-                            [5.3, mid - 17.5],
-                            [4, mid - 19],
-                            [4, -mid],
-                            [0, -mid]]);
+                            [.5, mid],
+                            [1 + 4.6/2, mid + 4.6/2],
+                            [4.6+1, mid],
+                            [6.1, mid],
+                            [7, mid - 6],
+                            [7, mid - 7],
+                            [4, mid - 10],
+                            //[2, mid - 10],
+                            ]);
             }
             rotate_extrude(convexity=10, center=true, $fn=128){
                 translate([sleeve_inside-.5, 0, mid])
                     polygon(points=[[0,0],
                             [0, mid],
-                            [1, mid],
-                            [1 + 4.36/2, mid + 4.36/2],
-                            [4.36, mid],
-                            [5.36, mid],
-                            [10, mid - 10],
-                            [10, mid - 11],
-                            [9, mid - 11],
-                            [4, mid - 16],
-                            [5.3, mid - 17.5],
-                            [4, mid - 19],
-                            [4, -mid],
-                            [0, -mid]]);
+                            [.5, mid],
+                            [1 + 4.6/2, mid + 4.6/2],
+                            [4.6+1, mid],
+                            [6.1, mid],
+                            [7, mid - 6],
+                            [7, mid - 7],
+                            [4, mid - 10],
+                            //[2, mid - 10],
+                            ]);
 
             }
         }
 }
 
-module turn_cut_bracket(sup=4, widest=sleeve_inside+9, makebearings=1 ){
+module turn_cut_bracket(sup=5, widest=sleeve_inside+9, makebearings=1 ){
     rotate([180,0,0])
     translate([0,0,-60])
     difference(){
         union(){
         translate([0,0,sleeve_height - sleeve_height/sup + 3])
-        cylinder(r1=sleeve_inside, r2=widest+sup, 
+        cylinder(r1=sleeve_inside-2, r2=widest+sup+1, 
                     h=sleeve_height/sup, $fn=128);
-            if (makebearings==1){
-                echo("Hi there");
-                translate([0,0, 19])
 
-                cylinder(r=sleeve_inside-.5, h= 28, $fn=128);
-            }
         }
         rotate([0,0,0])
             turner_cutter();
@@ -172,18 +162,18 @@ module turn_cut_bracket(sup=4, widest=sleeve_inside+9, makebearings=1 ){
     }
 }
 
-module turn_cut_bolts(widest=40.5, makebearing=1){
+module turn_cut_bolts(widest=43, makebearing=1){
     difference(){
         turn_cut_bracket(widest=widest, makebearings=makebearing);
         for (i=[0:120:359]){
             translate([cos(i)*widest, sin(i)*widest, 0]){
                 // outside rim sandwich holders
-                cylinder(r=6.2/2, h=20, center=true, $fn=12);
+                cylinder(r=6.4/2, h=20, center=true, $fn=12);
                 // punch into side bearings
                 if (makebearing==1){                
                     rotate([i,90,360-i])
-                    translate([-28,0,0]){           // height from floor
-                        #cylinder(r=8/2, h=60, center=true, $fn=18);
+                    translate([-25,0,0]){           // height from floor
+                        #cylinder(r=4, h=60, center=true, $fn=18);
                         translate([0,0,-17.0]){     // depth into sides
                         #cylinder(r=11, h=6.45, $fn=32, center=true);
                         translate([0,0,.5])
@@ -201,14 +191,108 @@ module turn_cut_bolts(widest=40.5, makebearing=1){
         } 
     }
 }
+//
+//turn_cut_bracket();
+//translate([-42,0,0])
 translate([-42,0,0])
-turn_cut_bolts();
+     turn_cut_bolts(makebearing=1);
+
+module test_fit(){
+    rotate([0,0,-30])
+    turn_cut_bolts();
+
+    translate([sleeve_inside+3,0,1+ 4.33/2]) sphere(r=4.33/2);
+    translate([sleeve_inside+3,0,0]) cube([2+ 4.33,2+ 4.33,2+ 4.33], center=true);
+    translate([0,0,18+1+4.33/2])rotate([0,180,0]) new_gear();
+    translate([0,38,-23]) rotate([90,0,0])
+	    import("whiskers_small.stl");
+}
+
+
+
+module inside_job(give=.5, ht=30, ringthk=6, 
+                    bearoutrad = 11.15, 
+                    bearin_spinrad = 13.28/2,
+                    bear_shaft_outrad = 8/2,)
+                    { 
+//inner bearing holder / freewheeler
+// print by itself using "3bearing608zz_inside_job"
+
+widest=43;
+    difference(){
+        translate([0,0,25])             // positive part
+            difference(){
+                cylinder(r=sleeve_inside-give, h=ht, center=true, $fn=256);
+                cylinder(r=sleeve_inside-give - ringthk, h=ht+.1, center=true, $fn=128);
+            } 
+
+    translate([0,0,25-ht/2-.05])        // some aero-style
+        cylinder(r1=sleeve_inside-give-1, r2=sleeve_inside-give - ringthk-1, h=ht/2+.1, $fn=196);
+    translate([0,0,25])
+    cylinder(r2=sleeve_inside-1, r1=sleeve_inside-give - ringthk-1, h=ht/2+.1, $fn=196);
+    for (i=[0:120:359]){
+        translate([cos(i)*widest, sin(i)*widest, 0]){
+            // outside rim sandwich holders
+            cylinder(r=6.4/2, h=20, center=true, $fn=12);
+            // punch into side bearings
+       
+                rotate([i,90,360-i])
+                translate([-25,0,0]){           // height from floor
+                    #cylinder(r=bear_shaft_outrad, h=60, center=true, $fn=18);
+                    translate([0,0,-17.3]){     // depth into sides
+                    #cylinder(r=bearoutrad, h=6.45, $fn=32, center=true);
+                    translate([0,0,.5])
+                    #cylinder(r=bearin_spinrad, h=7.5, $fn=32, center=true);
+                    translate([0,0,3.5])
+                    #cylinder(r1=bearoutrad, r2=bearoutrad - 0.5, 
+                                h = 0.5, $fn=32, center=true);
+                    }
+                   }
+            }
+
+                //translate([0,0,5])
+                //    cylinder(r=12.42/2, h=5.5, center=false, $fn=6);
+            echo("bolts at: ",[cos(i)*widest, sin(i)*widest]);
+            }
+        }  
+}
+
+// use -42 if joining bearing holder to bracket-bb-race
+// translate([-42,0,-10])
+translate([45,0,-10])
+    inside_job();
+
+use <turner.scad>;
+translate([-45,0,0]){
+translate([20,0,0]) rotate([0,0,90]){
+    armplate();
+    translate([-20,20,0])rotate([0,0,-105])
+    armnhammer();
+}
+
+translate([4,-4,5.8]){
+	    gearbear();
+
+}
+
+translate([-17,0,5.8])
+	gearbear();
+
+translate([-7,2.5,0])
+    elbow();
+
+translate([-9,15,6])
+    gear_nut();
+
+translate([2,16,0])
+	d_shaft();
+}
 
 
 module new_gear(){
         turnypart(mid=9);
-    translate([0,0,8.63]) rotate([0,180,0])
+    translate([0,0,8.77]) rotate([0,180,0])
         import("whiskers_big.stl");
 }
-//
-// translate([42,0,0]) new_gear();
+
+ translate([45,0,18]) rotate([0,180,0]) new_gear();

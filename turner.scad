@@ -2,7 +2,7 @@
 echo("turner.scad - small gears for runners and drive of big gear, with nut-d_shaft insert");
 echo(".... uses stl import of 'whiskers_small.stl'");
 
-insideB = 7.96/2;
+insideB = 7.67/2;       // nominally 8mm, compensating for printer fattening
 nutd = 6.5/2;
 
 module gearbear(nutd=nutd) {
@@ -98,11 +98,11 @@ module elbow(rad=nutd, thk=2){
 }
    
 
-translate([20,0,0]) rotate([0,0,90]){
-    armplate();
-    translate([0,-14,0])
-    armnhammer();
-}
+//translate([20,0,0]) rotate([0,0,90]){
+ //   armplate();
+ //   translate([0,-14,0])
+  //  armnhammer();
+//}
 
 translate([0,0,5.8]){
 	    gearbear();
@@ -112,8 +112,8 @@ translate([0,0,5.8]){
 translate([-20,0,5.8])
 	gearbear();
 
-translate([-20,0,0])
-    elbow();
+//translate([-10,2.5,0])
+ //   elbow();
 
 translate([-12,15,6])
     gear_nut();
