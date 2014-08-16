@@ -6,7 +6,7 @@ sleeveout = airflow+1;
 // [fullOD, shaftD, thickness, turning_hubD]
 hubbearing = [22,8,7,13];
 travelbearing = [6,3,2.5,5];
-travelwheel = 50;
+travelwheel = 60;
 travelpeg = travelwheel - travelbearing[1];
 
 fat     = 0.3;  // add-on to make walls cut out enough space
@@ -15,8 +15,6 @@ wthk    = 1.5 + fat;  // thickness of walls
 flrthk  = 1.6 + fat;  // thickness of floor (that walls extend from)
 inside  = 6.9 - fat;  // between walls, across floor (subtracting 2*.5*fat)
 c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk+inside, hb], [wthk+inside+wthk, hb], [wthk+inside+wthk, 0]];
-
-travelwheel = 60;
 
 //#shaft(travelbearing);
 //#cbar(barH=100);
@@ -27,7 +25,9 @@ travelwheel = 60;
 //    }
 //bigwheel_part();
 
-bartest();
+// bartest();
+
+upndown();
 
 // for cutting out shaft and hub-turning space
 module shaft(bearing, xtraH=0, hubclearance=0.5){
@@ -61,10 +61,10 @@ module can_sleeve (emptyness=airflow, thickness=sleeveout-airflow-0.2, sleeveH=2
 // negative model with channel for captured nut insertion
 module nutbolt(hexhead=6.65, 
                 shaftD=3.1, 
-                shaftlen=28, 
-                nut_position=9,
+                shaftlen=20, 
+                nut_position=17,
                 nut_thick=2.33,  
-                channel_len=0, 
+                channel_len=30, 
                 channel_ang=0,){
     color( .5, .9, .9 )
     translate([0,0,-shaftlen/2]){  //center it by shaftlen
@@ -77,11 +77,11 @@ module nutbolt(hexhead=6.65,
         translate([0,0,shaftlen-nut_position])
         hull(){
         rotate([0,0,channel_ang])
-            cylinder(r=hexhead/2, h=nut_thick, center=false, $fn=6);
+            cylinder(r=hexhead/2+.1, h=nut_thick+.1, center=false, $fn=6);
         translate([cos(channel_ang)*channel_len, 
                     sin(channel_ang)*channel_len, 0])
             rotate([0,0,channel_ang])
-                cylinder(r=hexhead/2, h=nut_thick, center=false, $fn=6);
+                cylinder(r=hexhead/2+.2, h=nut_thick+.1, center=false, $fn=6);
         }
     }
 }
@@ -137,6 +137,28 @@ module bartest(ht=10){
         #cbar(barH=30);
     translate([0,10.5,0]) rotate([90,0,0])
         #shaft(hubbearing);
+    }
+}
+
+module upndown(ht=travelwheel){
+    difference(){
+    cube([travelwheel, travelwheel/2, ht], center=true);
+    // lift rail
+    translate([0, travelwheel/2-hb, 0])
+        cube([travelwheel+.1, hb+.1, c_bar[6][0]+.1], center=true);
+    // side rails
+    translate([-travelwheel/2,0, 0])
+        #cube([hb, c_bar[6][0], travelwheel], center=true);
+    translate([travelwheel/2,0, 0])
+        #cube([hb, c_bar[6][0], travelwheel], center=true);
+    // cylinder space
+    translate([0, -travelwheel/2, 0])
+        cylinder(r = (sleeveout+.5)/2, h=ht+.1, $fn=196, center=true);
+    // nuts
+    translate([0,0,ht/4]) rotate([90,0,0])
+        #nutbolt(channel_ang=90);
+    translate([0,0,-ht/4]) rotate([90,0,0])
+        #nutbolt(channel_ang=-90);
     }
 }
         
