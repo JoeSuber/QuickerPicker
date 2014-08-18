@@ -25,13 +25,14 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 //    }
 //bigwheel_part();
 // bartest();
-rotate([0,0,180]) translate([0, -56, +19])
+rotate([0,0,180]) translate([0, -56, +25.9])
     upndown();
 
 //motorcut();
 //cbar();
-cbracket();
-
+//cbracket();
+louvers();
+           
 
 // for cutting out shaft and hub-turning space
 module shaft(bearing, xtraH=0, hubclearance=0.5){
@@ -128,6 +129,33 @@ module bigwheel_part(od=travelwheel, thk=4, hub=12, hubthk=4, holes=6, lever=5){
     }
 }
 
+module ring(ID, OD, ht){
+    difference(){
+        cylinder(r=OD/2, h=ht, center=true, $fn=96);
+        cylinder(r=ID/2, h=ht+.1, center=true, $fn=96);
+    }
+}
+
+// for LMB8MM
+module bearingcut(D=15.1/2, dring=14.41/2, drod=8.5/2, dziptie=[19,3.3],){
+    rotate_extrude(center=true, convexity=10, $fn=36){
+        polygon(points=[[0,-2], [D,0], 
+                        [D,3.3], [dring,3.3], 
+                        [dring,4.55], [D,4.55], 
+                        [D,19.35], [dring,19.35], 
+                        [dring,20.8], [D,20.8], 
+                        [D, 24.01], [0,26.01]]);
+    }
+    // zip tie rings
+    for (i=[(3.3+4.55)/2, (19.35+20.8)/2]){
+        translate([0,0,i])
+            ring(18.5, 18.5+2.8, 5);
+    }
+    // rod upon which it travels
+    translate([0,0,12])
+        cylinder(r=drod, h=90, $fn=18, center=true);
+}
+
 module bigwheel_cutout(od=travelwheel+3, thk=10){
     cylinder(r=od/2, h=thk, $fn=128);
 }
@@ -154,10 +182,10 @@ module upndown(ht=travelwheel){
     translate([0, travelwheel/2-hb, 0])
         cube([travelwheel+.1, hb+.1, c_bar[6][0]+.1], center=true);
     // side rails
-    translate([-travelwheel/2 - hb/2 ,3, 0]) rotate([0,0,-90])
-        cbar(barH=70);
-    translate([travelwheel/2 + hb/2 ,3, 0]) rotate([0,0,90])
-        cbar(barH=70);
+    translate([-travelwheel/2+.5 ,3.25, 0]) rotate([0,0,-0])
+        cube([hb+.5, c_bar[6][0]+1, travelwheel+.1], center=true);
+    translate([travelwheel/2-.5 ,3.25, 0]) rotate([0,0,0])
+        cube([hb+.5, c_bar[6][0]+1, travelwheel+.1], center=true);
 
     // cylinder space
     translate([0, -travelwheel/2, 0])
@@ -168,6 +196,11 @@ module upndown(ht=travelwheel){
     translate([0,0,-ht/4]) rotate([90,0,0])
         #nutbolt(channel_ang=-90);
     }
+    // underside printing supports for lift rail
+    for (i=[0:5:travelwheel-1]){
+        translate([i - travelwheel/2+2.5, travelwheel/2-hb*1.333, 0])
+            cube([.5, hb*.37, c_bar[6][0]+.1], center=true);
+    }
 }
 
 module upndown_cutout(ht=travelwheel){
@@ -177,10 +210,10 @@ module upndown_cutout(ht=travelwheel){
     //translate([0, travelwheel/2+hb, 0])
     //    cube([travelwheel+.1, hb+.1, c_bar[6][0]+.1], center=true);
     // side rails
-    translate([-travelwheel/2,-5, 0])
-        cube([hb, c_bar[6][0], travelwheel], center=true);
-    translate([travelwheel/2,-5, 0])
-        cube([hb, c_bar[6][0], travelwheel], center=true);
+    translate([-travelwheel/2+hb/2+.2,-5, 0]) rotate([0,0,90])
+        cbar(barH=70);
+    translate([travelwheel/2-hb/2-.2,-5, 0]) rotate([0,0,-90])
+        cbar(barH=70);
     // cylinder of suckage
     translate([0, -travelwheel/2 -9.5, 0])
         cylinder(r = (sleeveout+2)/2, h=ht+2, $fn=196, center=true);
@@ -199,14 +232,14 @@ module motorcut(x=23,y=22,z=37,tab=[6,4,5],tabpos=7,curverad=5, shaftpos=[0,11,1
             rotate([90,0,0])
                 cylinder(r=curverad, h=.1, center=false, $fn=64);
         }
-    // tab thingy
+    // tab thingy for motor attachment
     translate([0,tabpos+tab[1]/2, tab[2]/2]){
         cube(tab, center=true);
         // cuts hole for bolting tab
         rotate([90,0,0])
             cylinder(r=3.26/2, h=50, center=true, $fn=12);
     }
-    // output hub stub and slide-in track
+    // driven hub stub and slide-in track
     translate(shaftpos)
         rotate([90,0,0])
             hull(){
@@ -238,18 +271,42 @@ module motorcut(x=23,y=22,z=37,tab=[6,4,5],tabpos=7,curverad=5, shaftpos=[0,11,1
 }
 
 
-        
-module cbracket(z=travelwheel/2){
+// carve the big thing out of a block        
+module cbracket(z=travelwheel/2, bs=1.5){
     difference(){
-        translate([-travelwheel/2, 0, -11])
+        translate([-travelwheel/2, 0, -4])
         minkowski(){
-            cube([travelwheel, travelwheel*1.7, travelwheel-17], center=false);
+            cube([travelwheel, travelwheel*1.2, travelwheel-17], center=false);
             cylinder(r=8, h=1, $fn=16);
         }
     motorcut();
-    translate([-travelwheel/2.5, 0, 5]) rotate([90,155,0])
-    cbar(barH=30);
-    translate([travelwheel/2.5, 0, 5]) rotate([90,-155,0])
-    cbar(barH=30);
+    translate([-travelwheel/2-bs, -bs, 4]) 
+    bearingcut();
+    translate([travelwheel/2+bs,-bs, 4])
+    bearingcut();
+    translate([z+2.5,z*2.5+.5,z*1.3]) rotate([0,0,0])
+        #nutbolt(channel_ang=45);
+    translate([-z-2.5,z*2.5+.5,z*1.3]) rotate([0,0,0])
+        #nutbolt(channel_ang=135);
+    translate([-z*.8, z*.5,z*1.23]) rotate([0,0,0])
+        #nutbolt(channel_ang=180);
+    translate([z*.8, z*.5,z*1.23]) rotate([0,0,0])
+        #nutbolt(channel_ang=0);
     }
-}       
+}
+flapquant=4;
+openingside=airflow/flapquant;
+flapthick = 4;
+
+flap = [[0,0], [flapthick,openingside], [flapthick,0], [0,-openingside]];
+
+module louvers(){
+    // first make square versions
+    for (i=[0:flapquant-1]){
+        translate([i*openingside, 0, 0]) rotate([0,0,75])
+        linear_extrude(){
+            polygon(points=flap);
+        }
+    }
+}
+
