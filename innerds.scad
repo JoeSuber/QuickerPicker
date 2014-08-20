@@ -25,12 +25,18 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 //    }
 //bigwheel_part();
 // bartest();
-rotate([0,0,180]) translate([0, -56, +25.9])
-    upndown();
+
+// ** the can traveler by itself ***
+//rotate([0,0,180]) translate([0, -56, +25.9])
+    //upndown();    
 
 //motorcut();
 //cbar();
+
+// ** the main picker body ** 
 //cbracket();
+
+// ** the valve parts **
 louvers();
            
 
@@ -137,7 +143,7 @@ module ring(ID, OD, ht){
 }
 
 // for LMB8MM
-module bearingcut(D=15.1/2, dring=14.41/2, drod=8.5/2, dziptie=[19,3.3],){
+module bearingcut(D=15.1/2, dring=14.41/2, drod=8.9/2, dziptie=[19,3.3],){
     rotate_extrude(center=true, convexity=10, $fn=36){
         polygon(points=[[0,-2], [D,0], 
                         [D,3.3], [dring,3.3], 
@@ -149,7 +155,7 @@ module bearingcut(D=15.1/2, dring=14.41/2, drod=8.5/2, dziptie=[19,3.3],){
     // zip tie rings
     for (i=[(3.3+4.55)/2, (19.35+20.8)/2]){
         translate([0,0,i])
-            ring(18.5, 18.5+2.8, 5);
+            ring(dziptie[0], dziptie[0]+dziptie[1], 5);
     }
     // rod upon which it travels
     translate([0,0,12])
@@ -294,19 +300,138 @@ module cbracket(z=travelwheel/2, bs=1.5){
         #nutbolt(channel_ang=0);
     }
 }
+////-----------------------------////
+//// *** air valve section  **** ////
+//// ____________________________////
+
 flapquant=4;
 openingside=airflow/flapquant;
-flapthick = 4;
+flapthick = 5;
+buttonht = 4;
+gap = 2; // between walls
 
 flap = [[0,0], [flapthick,openingside], [flapthick,0], [0,-openingside]];
 
-module louvers(){
-    // first make square versions
-    for (i=[0:flapquant-1]){
-        translate([i*openingside, 0, 0]) rotate([0,0,75])
-        linear_extrude(){
-            polygon(points=flap);
+module one_love(scaler=1){
+    // one flap with key holes  
+    difference(){
+        translate([-flapthick/2, 0, 0])
+            linear_extrude(height=airflow){
+                polygon(points=flap);
+            }
+    translate([0,0, airflow/2]) rotate([0,0,-10.1])//rotate([0,0,flapthick/openingside*3.141592654/180])
+        scale([scaler,scaler,1]){
+            cube([flapthick/2.8, openingside/1.5, airflow+.1], center=true);
+        cylinder(r=1.6, h=airflow+.1, $fn=16, center=true);
         }
     }
+}
+
+module carabas(wheelrad=openingside/2){
+    // its the place for louvers
+    wheel = max(wheelrad, 3);
+    difference(){
+        cylinder(r1=wheel, r2=wheel-3, h=buttonht, $fn=196, center=true);
+        scale([1.07,1.07,1]) 
+            one_love(scaler=0.92);
+        cylinder(r=1.6, h=4.1, $fn=16, center=true);
+    }
+}
+
+module lever(lvrad= openingside/2 +1.5, lvthk=gap/2){
+    difference(){
+        hull(){
+            cylinder(r=lvrad, h=lvthk, center=false, $fn=36);
+            translate([0,25,0])
+                cylinder(r=lvrad, h=lvthk, center=false, $fn=36);
+        }
+        hull(){
+            translate([0,10,-0.05])
+                cylinder(r=1.82, h=lvthk+0.1, center=false, $fn=36);
+            translate([0,26,-0.05])
+                cylinder(r=1.82, h=lvthk+0.1, center=false, $fn=36);
+        }
+    }
+}
+
+module louvers(){
+    // the flaps- standing up for now
+    for (i=[0:flapquant-2]){
+        translate([i*openingside, 0, 0]) rotate([0,0,75])
+        one_love();    
+        translate([i*(openingside+3.2),-openingside*3 ,buttonht/2+gap/2]){
+            carabas();
+            translate([0, 0, -buttonht/2 - gap/2])
+                lever();
+           mirror([0,1,0]) {
+            translate([0, openingside*1.2, 0]) 
+                carabas();
+            translate([0, openingside*1.2, - buttonht/2- gap/2])
+                lever();}
+        }     
+    } 
+    //translate([airflow/2-openingside,openingside,airflow/2]) rotate([90,0,0])
+     //   #circle(r=30, $fn=128, center=true);
+}
+
+module side_plate(sidethick=5, insider=1){
+    // laying on its... side 
+    difference(){
+    translate([airflow - openingside*(flapquant-1), 0, buttonht/4])
+        union(){
+        cube([airflow, openingside*2 + 1, buttonht/2], center=true);
+            for (i=[1,-1]){
+                translate([i * (airflow/2+sidethick/2), 0,0]) rotate([0,-i*90,0])
+            notcher();
+            }
+        }
+        
+        if (insider==1){   
+            for (i=[0:flapquant-2]){   
+                translate([i*openingside*1.06, 0, buttonht/2+0.05]) scale([1.09,1.09,1.09])
+                    carabas();
+            }
+         }
+    }
+}
+
+module notcher(cd=2.2, cz=6, clong=1){
+    difference(){
+        cube([cd, openingside*2, cz], center=true);
+        translate([0,0,-clong/2-0.05])
+            cube([cd+0.05, openingside*2-((cz-clong)*2), cz-clong], center=true);
+    }
+}
+    
+module end_plate(sidethick=5, ridge=1, cc=buttonht/2+0.2){
+    xlen = airflow+sidethick*4+gap*2+ridge*2;
+    translate([0,0,(sidethick+ridge)/2])
+    difference(){
+        cube([xlen, openingside*2 + 1, sidethick+ridge], center=true);
+        translate([0,openingside/3, sidethick/2])
+            cube([airflow+sidethick*4+gap*2, openingside/2-1, ridge+0.1], center=true);
+        translate([0,-openingside/3, sidethick/2])
+            cube([airflow+sidethick*4+gap*2, openingside/2-1, ridge+0.1], center=true);
+        for (i=[1,-1], j=[cc, cc*3.5]){
+        translate([i*(xlen/2-j),0, 0])
+            scale([1.05,1.05,1.05])
+                notcher(cd=cc, cz=sidethick+ridge, clong=ridge);
+        }
+    }
+}
+
+translate([0,52,0]) end_plate();
+mirror([ 1, 0, 0 ]) { 
+translate([0,22,0]) end_plate(); }
+
+translate([airflow+2,-55,2]) rotate([180,0,90]) side_plate();
+mirror([ 1, 0, 0 ]) { 
+translate([-airflow-1,15,2]) rotate([180,0,90]) side_plate(); }
+
+translate([-25,-airflow+13,0]) rotate([0,0,90]){
+    side_plate(insider=0);
+    mirror([ 1, 0, 0 ]) {
+    translate([65,airflow-100,0]) rotate([0,0,90])
+        side_plate(insider=0); }
 }
 
