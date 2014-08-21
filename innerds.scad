@@ -38,6 +38,8 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 
 // ** the valve parts **
 louvers();
+
+plate_air_parts();
            
 
 // for cutting out shaft and hub-turning space
@@ -308,7 +310,7 @@ flapquant=4;
 openingside=airflow/flapquant;
 flapthick = 5;
 buttonht = 4;
-gap = 2; // between walls
+gap = 1.8; // between walls
 
 flap = [[0,0], [flapthick,openingside], [flapthick,0], [0,-openingside]];
 
@@ -319,7 +321,7 @@ module one_love(scaler=1){
             linear_extrude(height=airflow){
                 polygon(points=flap);
             }
-    translate([0,0, airflow/2]) rotate([0,0,-10.1])//rotate([0,0,flapthick/openingside*3.141592654/180])
+    translate([0,0, airflow/2]) rotate([0,0,-10.1])
         scale([scaler,scaler,1]){
             cube([flapthick/2.8, openingside/1.5, airflow+.1], center=true);
         cylinder(r=1.6, h=airflow+.1, $fn=16, center=true);
@@ -333,7 +335,7 @@ module carabas(wheelrad=openingside/2){
     difference(){
         cylinder(r1=wheel, r2=wheel-3, h=buttonht, $fn=196, center=true);
         scale([1.07,1.07,1]) 
-            one_love(scaler=0.92);
+            one_love(scaler=0.85);
         cylinder(r=1.6, h=4.1, $fn=16, center=true);
     }
 }
@@ -355,26 +357,26 @@ module lever(lvrad= openingside/2 +1.5, lvthk=gap/2){
 }
 
 module louvers(){
-    // the flaps- standing up for now
+    // the flaps- working well standing up
     for (i=[0:flapquant-2]){
         translate([i*openingside, 0, 0]) rotate([0,0,75])
         one_love();    
         translate([i*(openingside+3.2),-openingside*3 ,buttonht/2+gap/2]){
             carabas();
-            translate([0, 0, -buttonht/2 - gap/2])
-                lever();
-           mirror([0,1,0]) {
+            //translate([0, 0, -buttonht/2 - gap/2])
+            //    lever();
+           mirror([0,1,0]) //{
             translate([0, openingside*1.2, 0]) 
                 carabas();
-            translate([0, openingside*1.2, - buttonht/2- gap/2])
-                lever();}
+           // translate([0, openingside*1.2, - buttonht/2- gap/2])
+           //     lever();}
         }     
     } 
     //translate([airflow/2-openingside,openingside,airflow/2]) rotate([90,0,0])
      //   #circle(r=30, $fn=128, center=true);
 }
 
-module side_plate(sidethick=5, insider=1){
+module side_plate(sidethick=2, insider=1){
     // laying on its... side 
     difference(){
     translate([airflow - openingside*(flapquant-1), 0, buttonht/4])
@@ -382,7 +384,7 @@ module side_plate(sidethick=5, insider=1){
         cube([airflow, openingside*2 + 1, buttonht/2], center=true);
             for (i=[1,-1]){
                 translate([i * (airflow/2+sidethick/2), 0,0]) rotate([0,-i*90,0])
-            notcher();
+                notcher();
             }
         }
         
@@ -403,7 +405,7 @@ module notcher(cd=2.2, cz=6, clong=1){
     }
 }
     
-module end_plate(sidethick=5, ridge=1, cc=buttonht/2+0.2){
+module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
     xlen = airflow+sidethick*4+gap*2+ridge*2;
     translate([0,0,(sidethick+ridge)/2])
     difference(){
@@ -415,23 +417,24 @@ module end_plate(sidethick=5, ridge=1, cc=buttonht/2+0.2){
         for (i=[1,-1], j=[cc, cc*3.5]){
         translate([i*(xlen/2-j),0, 0])
             scale([1.05,1.05,1.05])
-                notcher(cd=cc, cz=sidethick+ridge, clong=ridge);
+                notcher(cd=cc, cz=6, clong=ridge);
         }
     }
 }
 
-translate([0,52,0]) end_plate();
-mirror([ 1, 0, 0 ]) { 
-translate([0,22,0]) end_plate(); }
+module plate_air_parts(){
+    translate([0,52,0]) end_plate();
+    mirror([ 1, 0, 0 ]) { 
+    translate([0,22,0]) end_plate(); }
 
-translate([airflow+2,-55,2]) rotate([180,0,90]) side_plate();
-mirror([ 1, 0, 0 ]) { 
-translate([-airflow-1,15,2]) rotate([180,0,90]) side_plate(); }
+    translate([airflow+2,-55,2]) rotate([180,0,90]) side_plate();
+    mirror([ 1, 0, 0 ]) { 
+    translate([-airflow-1,15,2]) rotate([180,0,90]) side_plate(); }
 
-translate([-25,-airflow+13,0]) rotate([0,0,90]){
-    side_plate(insider=0);
-    mirror([ 1, 0, 0 ]) {
-    translate([65,airflow-100,0]) rotate([0,0,90])
-        side_plate(insider=0); }
+    translate([-25,-airflow+13,0]) rotate([0,0,90]){
+        side_plate(insider=0);
+        mirror([ 1, 0, 0 ]) {
+        translate([65,airflow-100,0]) rotate([0,0,90])
+            side_plate(insider=0); }
+    }
 }
-
