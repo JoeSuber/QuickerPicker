@@ -1,5 +1,7 @@
 // collection of parts for the new picker idea
 
+use </usr/local/share/openscad/libraries/Partial_Rotate_Extrude_OpenSCAD/partial_rotate_extrude.scad>;
+
 airflow = 57;
 sleeveout = airflow+1;
 
@@ -314,6 +316,26 @@ gap = 1.8; // between walls
 
 flap = [[0,0], [flapthick,openingside], [flapthick,0], [0,-openingside]];
 
+module pie(arc=90, center=90, rad=11, height=3){
+    rotate([0,0,center-arc/2])
+     difference(){
+        children();
+        translate([0,-rad, 0])
+            cube([rad*2,rad*2,rad*2], center=true);
+        rotate([0,0,arc])
+        translate([0,rad, 0])
+            cube([rad*2,rad*2,rad*2], center=true);
+    }
+}
+
+module degreed(sect=90, mks=60, size=15){
+    for (i=[0:sect/mks:sect-1]){
+        translate([cos(i)*size, sin(i)*size, 3])
+            color([.9, i/sect*2+.5,0,1])
+                cylinder(r=sect/mks/4, h=6, $fn=12, center=true);
+    }
+}
+
 module one_love(scaler=1){
     // one flap with key holes  
     difference(){
@@ -324,34 +346,40 @@ module one_love(scaler=1){
     translate([0,0, airflow/2]) rotate([0,0,-10.1])
         scale([scaler,scaler,1]){
             cube([flapthick/2.8, openingside/1.5, airflow+.1], center=true);
-        cylinder(r=1.6, h=airflow+.1, $fn=16, center=true);
+        cylinder(r=1.65, h=airflow+.1, $fn=16, center=true);
         }
     }
 }
 
-module carabas(wheelrad=openingside/2){
+module carabas(wheelrad=openingside/2, leverscale=1){
     // its the place for louvers
     wheel = max(wheelrad, 3);
+    translate([0,0,-gap/2- buttonht/2])
+        cylinder(r=wheel+.1, h= gap/2, $fn=24, center=false);
     difference(){
         cylinder(r1=wheel, r2=wheel-3, h=buttonht, $fn=196, center=true);
         scale([1.07,1.07,1]) 
             one_love(scaler=0.85);
-        cylinder(r=1.6, h=4.1, $fn=16, center=true);
+        cylinder(r=1.7, h=4.1, $fn=16, center=true);
     }
+    translate([-wheel+(openingside/2+1.5)/4, 0, -buttonht/2 - gap/2])
+        lever(lvrad= openingside/2 +1.5, lvthk=gap/2, lvscale=leverscale);
 }
 
-module lever(lvrad= openingside/2 +1.5, lvthk=gap/2){
+module lever(lvrad=openingside/2 + 1.5, lvthk=gap/2, lvscale=1){
     difference(){
-        hull(){
-            cylinder(r=lvrad, h=lvthk, center=false, $fn=36);
-            translate([0,25,0])
-                cylinder(r=lvrad, h=lvthk, center=false, $fn=36);
+        union(){
+            hull(){
+                cylinder(r=(lvrad + 1.5)/4, h=lvthk, center=false, $fn=16);
+                translate([0,9/lvscale,0])
+                    cylinder(r=(lvrad + 1.5)/4, h=lvthk, center=false, $fn=16);
+            }
+            translate([0,9/lvscale,0])
+                cylinder(r=2, h=lvthk*2 + 0.25, center=false, $fn=16);
         }
-        hull(){
-            translate([0,10,-0.05])
-                cylinder(r=1.82, h=lvthk+0.1, center=false, $fn=36);
-            translate([0,26,-0.05])
-                cylinder(r=1.82, h=lvthk+0.1, center=false, $fn=36);
+        if (lvscale < 1.001){
+            translate([0,9/lvscale,-0.05])
+                cylinder(r=1.65, h=lvthk*2 + 0.25 + 0.1, center=false, $fn=6);
         }
     }
 }
@@ -361,12 +389,12 @@ module louvers(){
     for (i=[0:flapquant-2]){
         translate([i*openingside, 0, 0]) rotate([0,0,75])
         one_love();    
-        translate([i*(openingside+3.2),-openingside*3 ,buttonht/2+gap/2]){
+        translate([i*(openingside+.5)+5,-openingside*2.8 ,buttonht/2+gap/2]){
             carabas();
             //translate([0, 0, -buttonht/2 - gap/2])
             //    lever();
            mirror([0,1,0]) //{
-            translate([0, openingside*1.2, 0]) 
+            translate([-openingside*0.4, -openingside*1.8, 0]) 
                 carabas();
            // translate([0, openingside*1.2, - buttonht/2- gap/2])
            //     lever();}
@@ -376,7 +404,7 @@ module louvers(){
      //   #circle(r=30, $fn=128, center=true);
 }
 
-module side_plate(sidethick=2, insider=1){
+module side_plate(sidethick=2, insider=1, scalecut=1.07){
     // laying on its... side 
     difference(){
     translate([airflow - openingside*(flapquant-1), 0, buttonht/4])
@@ -388,12 +416,24 @@ module side_plate(sidethick=2, insider=1){
             }
         }
         
-        if (insider==1){   
-            for (i=[0:flapquant-2]){   
-                translate([i*openingside*1.06, 0, buttonht/2+0.05]) scale([1.09,1.09,1.09])
-                    carabas();
+        if (insider==1){
+            echo("flapquant =",flapquant);   
+            for (i=[0:flapquant-2]){ 
+                echo("i*openingside = ",i*openingside);  
+                translate([i*openingside*1.06, 0, buttonht/2+0.05]){ 
+                    scale([scalecut,scalecut,scalecut])
+                       rotate([0,0,-81])
+                       carabas(leverscale=scalecut);
+                    translate([0,0,-buttonht/2])
+                    pie(arc=109, center=95, rad=13.6, height=4){
+                       rotate_extrude(convexity=10, $fn=36){
+                       translate([11/scalecut, 0, 0])
+                          square([4.2,2.5], center=true);
+                       }
+                    }
+                }
             }
-         }
+        }
     }
 }
 
@@ -406,7 +446,7 @@ module notcher(cd=2.2, cz=6, clong=1){
 }
     
 module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
-    xlen = airflow+sidethick*4+gap*2+ridge*2;
+    xlen = airflow+sidethick*4+gap*4+ridge*2;
     translate([0,0,(sidethick+ridge)/2])
     difference(){
         cube([xlen, openingside*2 + 1, sidethick+ridge], center=true);
@@ -417,24 +457,25 @@ module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
         for (i=[1,-1], j=[cc, cc*3.5]){
         translate([i*(xlen/2-j),0, 0])
             scale([1.05,1.05,1.05])
-                notcher(cd=cc, cz=6, clong=ridge);
+                notcher(cd=cc, cz=6.75, clong=ridge);
         }
     }
 }
 
 module plate_air_parts(){
-    translate([0,52,0]) end_plate();
+    translate([33,52,0]) rotate([0,0,0])
+        end_plate();
     mirror([ 1, 0, 0 ]) { 
-    translate([0,22,0]) end_plate(); }
+    translate([33,22,0]) rotate([0,0,0])
+         end_plate(); }
 
-    translate([airflow+2,-55,2]) rotate([180,0,90]) side_plate();
+    translate([23.5,21,2]) rotate([180,0,0])   side_plate();
     mirror([ 1, 0, 0 ]) { 
-    translate([-airflow-1,15,2]) rotate([180,0,90]) side_plate(); }
-
-    translate([-25,-airflow+13,0]) rotate([0,0,90]){
+    translate([23.5,52,2]) rotate([180,0,0])   side_plate(); }
+    translate([-56,-12,0]) rotate([0,0,0]){
         side_plate(insider=0);
         mirror([ 1, 0, 0 ]) {
-        translate([65,airflow-100,0]) rotate([0,0,90])
+        translate([-113,-29,0]) rotate([0,0,90])
             side_plate(insider=0); }
     }
 }
