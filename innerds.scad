@@ -465,21 +465,23 @@ module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
 module rackpush(camsize=openingside*2, travelspace=openingside+2.5, curv=2){
     difference(){
         union(){
-        translate([airflow/2, (openingside*2-gap*3.1)/2,0])
+		cube([100,10,10], center=true);
+        translate([airflow / 2, (camsize - gap * 3.1) / 2,0])
             minkowski(){
-
-                cube([camsize + airflow - travelspace-curv, openingside*2-gap*2-curv*2, gap-.1], center=true);
+                cube([camsize + airflow - travelspace - curv, openingside * 2 - gap*2-curv*2, gap-.1], center=true);
                 cylinder(r=curv, $fn=20, center=true);
             }
             for (i=[0:flapquant-2]){ 
-                translate([i*openingside*1.06+camsize+gap, openingside*2-gap*3, -3.5/2])
-                    cylinder(r=2, h = 3.5, $fn=14, center=true);
+                translate([i*openingside*1.06+camsize+gap, openingside*2 - gap*4, -3.5/2])
+                    cylinder(r=2, h = 3.5, $fn=20, center=true);
             }
         }
         for (i=[0:flapquant-2]){ 
             translate([i*openingside*1.06+camsize+gap, openingside*2-gap*4, (gap-.1)/2])
-                cylinder(r=0.8, h = 3.5, $fn=14, center=true);
+                cylinder(r=0.8, h = 10, $fn=14, center=true);
         }
+		translate([openingside/2, openingside-curv,0])
+			cylinder(r=openingside*1.5/2, h=15, center=true, $fn=80);
     }
 }
 
