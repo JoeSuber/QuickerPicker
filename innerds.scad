@@ -1,7 +1,5 @@
 // collection of parts for the new picker idea
 
-use </usr/local/share/openscad/libraries/Partial_Rotate_Extrude_OpenSCAD/partial_rotate_extrude.scad>;
-
 airflow = 57;
 sleeveout = airflow+1;
 
@@ -35,13 +33,15 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 //motorcut();
 //cbar();
 
+rackpush();
+
 // ** the main picker body ** 
 //cbracket();
 
 // ** the valve parts **
-louvers();
+//louvers();
 
-plate_air_parts();
+//plate_air_parts();
            
 
 // for cutting out shaft and hub-turning space
@@ -462,7 +462,30 @@ module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
     }
 }
 
+module rackpush(camsize=openingside*2, travelspace=openingside+2.5, curv=2){
+    difference(){
+        union(){
+        translate([airflow/2, (openingside*2-gap*3.1)/2,0])
+            minkowski(){
+
+                cube([camsize + airflow - travelspace-curv, openingside*2-gap*2-curv*2, gap-.1], center=true);
+                cylinder(r=curv, $fn=20, center=true);
+            }
+            for (i=[0:flapquant-2]){ 
+                translate([i*openingside*1.06+camsize+gap, openingside*2-gap*3, -3.5/2])
+                    cylinder(r=2, h = 3.5, $fn=14, center=true);
+            }
+        }
+        for (i=[0:flapquant-2]){ 
+            translate([i*openingside*1.06+camsize+gap, openingside*2-gap*4, (gap-.1)/2])
+                cylinder(r=0.8, h = 3.5, $fn=14, center=true);
+        }
+    }
+}
+
+
 module plate_air_parts(){
+    // for printing the parts
     translate([33,52,0]) rotate([0,0,0])
         end_plate();
     mirror([ 1, 0, 0 ]) { 
