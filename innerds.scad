@@ -32,8 +32,10 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 
 //motorcut();
 //cbar();
-
-rackpush();
+//cam(ht=5);
+//translate([36,30,0]) rotate([0,0,90])
+ //   end_plate_motor();
+//rackpush();
 
 // ** the main picker body ** 
 //cbracket();
@@ -41,7 +43,7 @@ rackpush();
 // ** the valve parts **
 //louvers();
 
-//plate_air_parts();
+plate_air_parts();
            
 
 // for cutting out shaft and hub-turning space
@@ -404,18 +406,28 @@ module louvers(){
      //   #circle(r=30, $fn=128, center=true);
 }
 
-module side_plate(sidethick=2, insider=1, scalecut=1.07){
+module side_plate(sidethick=2, insider=1, scalecut=1.06){
     // laying on its... side 
     difference(){
     translate([airflow - openingside*(flapquant-1), 0, buttonht/4])
         union(){
-        cube([airflow, openingside*2 + 1, buttonht/2], center=true);
+        cube([airflow, openingside*2 + 8, buttonht/2], center=true);
             for (i=[1,-1]){
                 translate([i * (airflow/2+sidethick/2), 0,0]) rotate([0,-i*90,0])
                 notcher();
             }
         }
         
+        for (i=[0:flapquant-2]){
+            translate([i*openingside*1.06, 0, (buttonht/2+0.05)*(1-insider)])
+                pie(arc=111, center=95, rad=13.6, height=4){
+                   rotate_extrude(convexity=10, $fn=36){
+                   translate([11/scalecut, 0, 0])
+                      square([4.2,2.5], center=true);
+                   }
+                }
+        }
+
         if (insider==1){
             echo("flapquant =",flapquant);   
             for (i=[0:flapquant-2]){ 
@@ -424,13 +436,7 @@ module side_plate(sidethick=2, insider=1, scalecut=1.07){
                     scale([scalecut,scalecut,scalecut])
                        rotate([0,0,-81])
                        carabas(leverscale=scalecut);
-                    translate([0,0,-buttonht/2])
-                    pie(arc=109, center=95, rad=13.6, height=4){
-                       rotate_extrude(convexity=10, $fn=36){
-                       translate([11/scalecut, 0, 0])
-                          square([4.2,2.5], center=true);
-                       }
-                    }
+
                 }
             }
         }
@@ -449,7 +455,7 @@ module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
     xlen = airflow+sidethick*4+gap*4+ridge*2;
     translate([0,0,(sidethick+ridge)/2])
     difference(){
-        cube([xlen, openingside*2 + 1, sidethick+ridge], center=true);
+        cube([xlen, openingside*2 + 8, sidethick+ridge], center=true);
         translate([0,openingside/3, sidethick/2])
             cube([airflow+sidethick*4+gap*2, openingside/2-1, ridge+0.1], center=true);
         translate([0,-openingside/3, sidethick/2])
@@ -462,45 +468,139 @@ module end_plate(sidethick=2.2, ridge=1, cc=buttonht/2+0.2){
     }
 }
 
-module rackpush(camsize=openingside*2, travelspace=openingside+2.5, curv=2){
+module motorbox(){
+    cube([12,10,25.4], center=true);
+    cylinder(r=2, h=26.5, $fn=14, center=true);
+    translate([0,0,(33.3+26.5)/4])
+        cylinder(r=1.7, h=33.3-26.5, $fn=14, center=true);
+}
+
+module cam(travel1=openingside, platethick=gap, brdr=5, shaft=[2.89, 2.45], ht=10, shaftscale=1.3, extracut=0){
+    // 'wheelrad' is coincidentally the desired travel-range
+    // cam travel should be 3/4 of tangent circles with 'unit' radii
+    unit = travel1/3;
+    rotate([0,0,90]) translate([0, 0, 0])
     difference(){
         union(){
-		cube([100,10,10], center=true);
-        translate([airflow / 2, (camsize - gap * 3.1) / 2,0])
-            minkowski(){
-                cube([camsize + airflow - travelspace - curv, openingside * 2 - gap*2-curv*2, gap-.1], center=true);
-                cylinder(r=curv, $fn=20, center=true);
+            hull(){
+                translate([unit, 0, 0])
+                    cylinder(r=unit, h=ht, $fn=48, center=false);
+                translate([-unit, 0, 0])
+                    cylinder(r=unit, h=ht, $fn=48, center=false);
             }
-            for (i=[0:flapquant-2]){ 
-                translate([i*openingside*1.06+camsize+gap, openingside*2 - gap*4, -3.5/2])
-                    cylinder(r=2, h = 3.5, $fn=20, center=true);
+            translate([unit+.2*unit, 0, ht]) scale([1.1, unit/(unit+3), 1])
+                cylinder(r=unit+3, h=1.5, $fn=48, center=false);
+            translate([(unit+.2*unit)*2.1, 0,ht-1.5])
+                cube([3,.5,3], center=true);
+            }
+    // dshaft
+    translate([unit+.2*unit, 0,0]) scale([shaftscale, shaftscale, shaftscale])
+        difference(){
+            cylinder(r=shaft[0]/2, h=10.1, $fn=16, center=false);
+            translate([0, (shaft[0]+shaft[1])/2 - shaft[0]/2, (ht-0.1)/2])
+                cube([shaft[0], shaft[0] - shaft[1], ht+0.1], center=true);
+        echo("shaftscale for printing is:",shaftscale*shaft[0]);
+        }
+    }
+
+    // cam plate
+    rad = unit*2;
+    clearance = 0.2;
+    rotate([0,0,90]) 
+        difference(){
+            translate([0,0,platethick])
+                minkowski(){
+                    cylinder(r=brdr/2+clearance, h=.01, $fn=18);
+                    cube([rad*2,rad*3, platethick*2], center=true);
+                }
+            translate([0, 0, -0.1]){
+                echo("camhole rad is:", rad);
+                hull(){
+                translate([0,unit*1,0])
+                    cylinder(r=rad+clearance, h=10, $fn=48, center=false);
+                translate([0,-unit*1,0])
+                    cylinder(r=rad+clearance, h=10, $fn=48, center=false);
+                }
             }
         }
-        for (i=[0:flapquant-2]){ 
-            translate([i*openingside*1.06+camsize+gap, openingside*2-gap*4, (gap-.1)/2])
-                cylinder(r=0.8, h = 10, $fn=14, center=true);
+    //translate([0,airflow/2,0]) rotate([0,0,90])
+     //   side_plate();
+   // holes & connecting plate
+    inter = openingside*1.06;
+    start = 36.5;
+    for (i=[0:2]){
+        translate([-6.5, start+i*inter, 1.8])
+            difference(){
+            cylinder(r=1.7, h=1.8, center=true, $fn=12);
+            cylinder(r=0.9, h=1.9, center=true);
+            }
+    }
+    difference(){
+    translate([0, airflow/2+12.5, gap/2])
+        cube([19+extracut,59,gap], center=true);
+        for (i=[0:2]){
+            translate([-6.5, start+i*inter, 0]) 
+                cylinder(r=0.9, h=10, center=true);
         }
-		translate([openingside/2, openingside-curv,0])
-			cylinder(r=openingside*1.5/2, h=15, center=true, $fn=80);
     }
 }
 
+module small_switch(box=[13, 5.4, 6], connect=[11.5,2.5,5]){
+    // for insert with flush face
+    difference(){
+        union(){
+            cube(box, center=true);
+            translate([2.5, 0, box[2]/2]) rotate([90,0,0])
+                cylinder(r=.5, h=3.1, $fn=10, center=true);
+            translate([-0.5 ,0, -box[2]/2 - connect[2]/2])
+                cube(connect, center=true);
+            translate([0,0,-box[0]*2.5])
+                cylinder(r=connect[1]/2, h=box[0]*5, $fn=6, center=true);
+        }
+    translate([box[0]/2 - 0.5, 0, box[2]/2 - 0.5])
+        cube([1.5, 3.65, 1.5], center=true);
+    }
+}
 
+module end_plate_motor(){
+    difference(){
+        union(){
+            end_plate();
+            translate([13.65,3,15])
+                minkowski(){
+                cube([26,13,26], center=true);
+                cylinder(r=2, h=.1, $fn=16);
+                }
+        }
+        translate([28+4,3,15]) rotate([-90,0,270])
+            #cam(extracut=5);
+        //translate([28+4,1.7,15]) rotate([-90,0,270])
+        //    cam();
+        translate([29-13,3,21]) rotate([-90,0,270])
+            #motorbox();
+        translate([29-13,3,24]) rotate([-90,0,270])
+            cylinder(r=6, h=30, center=true);
+        translate([29-3,3,13.5]) rotate([-90,0,270])
+            small_switch();
+    }
+}
+   
 module plate_air_parts(){
     // for printing the parts
-    translate([33,52,0]) rotate([0,0,0])
-        end_plate();
+    translate([38,0,0]) rotate([0,0,0])
+        end_plate_motor();
     mirror([ 1, 0, 0 ]) { 
-    translate([33,22,0]) rotate([0,0,0])
+    translate([38,0,0]) rotate([0,0,0])
          end_plate(); }
-
-    translate([23.5,21,2]) rotate([180,0,0])   side_plate();
+    translate([-57,37,2]) rotate([180,0,90])   side_plate();
     mirror([ 1, 0, 0 ]) { 
-    translate([23.5,52,2]) rotate([180,0,0])   side_plate(); }
-    translate([-56,-12,0]) rotate([0,0,0]){
+    translate([18,37,2]) rotate([180,0,90])   side_plate(); }
+    translate([21.5,-37,0])
         side_plate(insider=0);
-        mirror([ 1, 0, 0 ]) {
-        translate([-113,-29,0]) rotate([0,0,90])
-            side_plate(insider=0); }
-    }
+    mirror([ 1, 0, 0 ])
+        translate([21.5,-37,0])
+            side_plate(insider=0);
+    translate([86,-37,0])
+        cam(ht=5);
+    translate([50,25,0]) rotate([0,0,180]) louvers();
 }
