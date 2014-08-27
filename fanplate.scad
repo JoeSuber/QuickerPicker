@@ -6,7 +6,14 @@ cp = [0.1,0.1,0.1];
 
 outcube=wallcube+[1.5-curve,1.5-curve,0];
 finalcube=outcube+[curve,curve,curve];
-echo(outcube, finalcube);
+echo("outer cube with corners = ", curve, " has these dimensions: ", finalcube);
+
+// 'top' plate for holding fan
+translate([0,0,5]) rotate([0,180,0])
+    fanfoundation();
+
+// 'bottom' plate for can
+    candemnation();
 
 module positive(){
     minkowski(){
@@ -15,10 +22,9 @@ module positive(){
     }
     translate([0,0,outcube[2]/2+3.9])
     import ("../QuickerPicker/faninterface_ring_changed.stl");
-
 }
 
-module fanfoundation(wallcut1=3.98, wallcut2=8.25, wallcut_h=2.1){
+module fanfoundation(wallcut1=3.98, wallcut2=8.25, wallcut_h=2.1, notched=1){
     
     difference(){
         // raise positive model so wallcuts don't need adjustment
@@ -30,6 +36,12 @@ module fanfoundation(wallcut1=3.98, wallcut2=8.25, wallcut_h=2.1){
                 cube([wallcut2, wallcube[1], wallcut_h]+cp, center=true);
             translate([0, i*airway/2 + i*wallcut1/2, 0])
                 cube([wallcube[0], wallcut1, wallcut_h]+cp, center=true);    
+        }
+        // notch for cam-travel
+        if (notched==1){
+            echo("making optional notch on fanfoundation parameter: notched = ", notched); 
+            translate([airway/2 + wallcut2/2, airway/2 + wallcut1 + curve, -walcube[2]/2])
+                #cube([curve,10,wallcube[2]*2], center=true);
         }
         // airhole
         cylinder(r=57/2, h=20, $fn=136, center=true);
@@ -52,7 +64,8 @@ module fanfoundation(wallcut1=3.98, wallcut2=8.25, wallcut_h=2.1){
         translate([0, 0, -(outcube[2]/2 - wallcut_h/2)])
             cylinder(r1=(pow(2,0.5) * 25)-3, r2=airway/2, h=7.1, $fn=128, center=false);
         echo(pow(2,0.5) * 25);
+
+
     }
 }
-translate([0,0,5]) rotate([0,180,0])
-    fanfoundation();
+
