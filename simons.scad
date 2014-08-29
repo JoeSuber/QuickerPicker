@@ -63,18 +63,18 @@ module growbox(to_height=bigboxht, slit_width=slit_width, fatboy=0){
 		translate([0,0,-5])
 			cube([bigbox-sides*2-cornerad, slit_width, to_height - 5], center=true);
 		// cut the holes for LED & sensor
-		for (i=[[-bigbox/2, ledhole], [bigbox/2, sensorhole]]){
+		for (i=[[-bigbox/2, sensorhole], [bigbox/2, ledhole]]){
 			translate([i[0],0,0]) rotate([0,90,0])
-			#cylinder(r=i[1]/2, h=sides*3, center=true, $fn=64);
+			#cylinder(r=i[1]/2, h=sides*3, center=true, $fn=32);
 		}
 	}
 }
 
-module lids_on_it (overhang=lid_puff, basethick=lid_lad, fatmaker=.33){
+module lids_on_it (overhang=lid_puff, basethick=lid_lad, fatmaker=.35){
 	difference(){
 		minkowski(){
 			cube([bigbox, holeside, basethick], center=true);
-			sphere(r=overhang/2, center=true, $fn=64);
+			sphere(r=overhang/2, center=true, $fn=32);
 		}
 		// imprint the base of the walls and cuvette on a lid-like-structure
 		translate([0,0,bigboxht/2])
@@ -82,8 +82,12 @@ module lids_on_it (overhang=lid_puff, basethick=lid_lad, fatmaker=.33){
 		translate([0,0,bigboxht/2])
 			cube([cuvtt_inside+.5, cuvtt_inside+.5, bigboxht], center=true); 
 		// an extra cut to ensure the lid doesn't obscure the cuvett:
-		translate([0,0,bigboxht/2])
-			cube([bigbox-sides*4, slit_width+.1, bigboxht], center=true);
+		//translate([0,0,bigboxht/2])
+		//	cube([bigbox-sides*4, slit_width+.1, bigboxht], center=true);
+		if (fatmaker > 0){
+			translate([-11,0,bigboxht/2])
+				#cube([3,5,bigboxht], center=true);
+		}
 	}
 }
 
