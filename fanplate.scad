@@ -40,7 +40,7 @@ module fanfoundation(wallcut1=3.98, wallcut2=8.25, wallcut_h=2.1, notched=1){
         // notch for cam-travel
         if (notched==1){
             echo("making optional notch on fanfoundation parameter: notched = ", notched); 
-            translate([airway/2 + wallcut2/2, airway/2 + wallcut1 + curve, -walcube[2]/2])
+            translate([airway/2 + wallcut2/2, -(airway/2 + wallcut1 + curve), -walcube[2]/2])
                 #cube([curve,10,wallcube[2]*2], center=true);
         }
         // airhole

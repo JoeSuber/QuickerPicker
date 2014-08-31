@@ -43,8 +43,9 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 // ** the valve parts **
 //louvers();
 
-plate_air_parts();
-           
+//plate_air_parts();
+ translate([36,30,0]) 
+    wankel();         
 
 // for cutting out shaft and hub-turning space
 module shaft(bearing, xtraH=0, hubclearance=0.5){
@@ -475,6 +476,31 @@ module motorbox(){
         cylinder(r=1.7, h=33.3-26.5, $fn=14, center=true);
 }
 
+module wankel(travel1=openingside, spread=15.11/2, rad=18.55, thk=5, maxw=18.77, rot_rad=15.11,  ht=10, shaft=[2.89, 2.45], shaftscale=1.24){
+    unit=travel1/3;
+    translate([(rot_rad - maxw)/4,0,0]) scale([1.06,1.06,1])
+    difference(){    
+        //intersection_for (i=[60, 120, 180, 240, 300, 360]){
+           // translate([spread*cos(i), spread*sin(i), thk/2])
+            translate([0,0, thk/2])
+                cylinder(r=rad/2, h=thk, $fn=64, center=true);
+       // }
+        //#cylinder(r=rad-spread, h=thk+1, center=true, $fn=24);
+        // dshaft
+
+        translate([unit+.25*unit, 0,0]) scale([shaftscale, shaftscale, shaftscale]) rotate([0,0,-90])
+            difference(){
+                cylinder(r=shaft[0]/2, h=10.1, $fn=16, center=false);
+                translate([0, (shaft[0]+shaft[1])/2 - shaft[0]/2, (ht-0.1)/2])
+                    cube([shaft[0], shaft[0] - shaft[1], ht+0.1], center=true);
+            echo("shaftscale for printing is:",shaftscale*shaft[0]);
+        }
+    }
+    //#cylinder(r=.5, h=thk+5, center=true, $fn=6);
+    //#cube([maxw,maxw,1], center=true);
+   // #cube([rot_rad,rot_rad,2], center=true);
+}
+    
 module cam(travel1=openingside, platethick=gap, brdr=5, shaft=[2.89, 2.45], ht=10, shaftscale=1.3, extracut=0){
     // 'wheelrad' is coincidentally the desired travel-range
     // cam travel should be 3/4 of tangent circles with 'unit' radii
@@ -488,6 +514,7 @@ module cam(travel1=openingside, platethick=gap, brdr=5, shaft=[2.89, 2.45], ht=1
                 translate([-unit, 0, 0])
                     cylinder(r=unit, h=ht, $fn=48, center=false);
             }
+
             translate([unit+.2*unit, 0, ht]) scale([1.1, unit/(unit+3), 1])
                 cylinder(r=unit+3, h=1.5, $fn=48, center=false);
             translate([(unit+.2*unit)*2.1, 0,ht-1.5])
