@@ -2,7 +2,7 @@
 
 use <innerds.scad>;
 
-springlen = 29;
+springlen = 30;
 
 for (i=[-1,0,1]){
     translate([0,i*(10+1),5/2])
