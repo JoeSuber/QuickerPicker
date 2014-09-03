@@ -43,7 +43,7 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 // ** the valve parts **
 //louvers();
 
-//plate_air_parts();
+plate_air_parts();
  translate([36,30,0]) 
     wankel();         
 
@@ -75,6 +75,8 @@ module can_sleeve (emptyness=airflow, thickness=sleeveout-airflow-0.2, sleeveH=2
             translate([(emptyness+thickness) / 2, 0, 0])
                 polygon(points=[[0,0], [0,sleeveH], [thickness,sleeveH], [thickness,0]]);
 }
+
+
 
 // negative model with channel for captured nut insertion
 module nutbolt(hexhead=6.65, 
@@ -116,7 +118,6 @@ module motorhub(flat_to_flat=4.76, diameter=7.4, height=5.57, baseD=9, baseH=1.0
                 translate([0,i,(height+baseH)/2])
                     cube([diameter+0.1, cutrad+0.1, height+.1], center=true);
             }
-
         }
 }
     
@@ -230,7 +231,6 @@ module upndown_cutout(ht=travelwheel){
     // cylinder of suckage
     translate([0, -travelwheel/2 -9.5, 0])
         cylinder(r = (sleeveout+2)/2, h=ht+2, $fn=196, center=true);
-
 }
 
 module motorcut(x=23,y=22,z=37,tab=[6,4,5],tabpos=7,curverad=5, shaftpos=[0,11,16], canheight=28){
