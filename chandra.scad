@@ -1,17 +1,41 @@
+// chandra nalaar's goggles
+
 lenseD = 60;
 depth = 20;
 rim = 4;
 center=18;
-
+use <flatsine.scad>;
+translate([0,-48,0])
 noseparts();
 
+//nosebend();
 eyeparts();
+//sideguard();
+//translate([-28,0,0])
+//    noseconnect(cut=360*$t);
 
 module noseparts(){
     translate([25,0,0])
         hingepin();
-    translate([-14,0,0])
+    translate([-23,0,0])
         clip();
+    translate([-21,0,-4])
+        rotate([90,45,0]){
+            difference(){
+            noseconnect(cut=360*$t);
+            translate([-1.5,1.5,0])
+                rotate([45,90,0])
+                    cube([100,100,4], center=true);
+            }
+            rotate([180,180,0])
+                translate([-1.5,-16.5,-12])
+                difference(){
+                    noseconnect_top();
+                    translate([-6,6,0])
+                    rotate([45,90,0])
+                        #cube([100,100,4], center=true);
+                }
+            }
 }
 
 module eyeparts(){
@@ -51,7 +75,7 @@ module flange(rad=lenseD/2-3, flare=0.4){
 
 nose=18;
 base=1.2;
-shaft=3;
+shaft=1.8;
 pinh=1;
 pinthk=1;
 knobrad=2.2;
@@ -60,7 +84,7 @@ module hingepin(fat=0){
 // the round part everything attaches to 
     pinD=nose/2;
     pinring= pinD - 2;
-    cylinder(r=pinD/2+1+fat, h=base, $fn=36);
+    cylinder(r1=pinD/2+1+fat, r2=pinD/2+fat, h=base, $fn=36);
     translate([0,0,base])
         cylinder(r=pinD/2+fat, h=shaft, $fn=30);
     translate([0,0,base+shaft])
@@ -82,32 +106,126 @@ module clip(){
     //knobbies
     for (i=[44,136]){
     translate([bigrad*cos(i), bigrad*sin(i), 0])
-        cylinder(r=knobrad, h=pinthk*4, $fn=24);
+        difference(){
+            cylinder(r=knobrad, h=pinthk*4, $fn=24);
+            cylinder(r=0.8, h=pinthk*4+.1, $fn=3);
+        }
     }
 }
 
-module noseconnect(cut=1){
+module nosebend(rad=2.5, spread=10, rod=3.3/2, rodlen=13, extend=6){
+    for (i=[1,-1]){
+        translate([0,spread/2*i,0])
+            difference(){
+                rotate([90*i,0,0])
+                    hull(){
+                        translate([extend/2,0.05,0])
+                            cylinder(r=rad, h=1+rodlen-spread, $fn=24, center=true);
+                        translate([-extend/2,0.05,0])
+                            cylinder(r=rad, h=1+rodlen-spread, $fn=24, center=true);
+                    }
+                 rotate([90*i,0,0])
+                    hull(){
+                        translate([extend/2-(rad-rod), 0, (rodlen-spread)/2])
+                            cylinder(r=rod, h=1.1, $fn=24, center=true);
+                        translate([-extend/2+(rad-rod), 0, (rodlen-spread)/2])
+                            cylinder(r=rod, h=1.1, $fn=24, center=true);
+                    }
+                rotate([90*i, 0, 0])
+                    translate([extend/2-(rad-rod), 0, (rodlen-spread)/2])
+                            cylinder(r=rod+.1, h=rodlen-spread, $fn=24, center=true);
+            }
+    }
+    translate([extend/2-(rad-rod), 0, 0]) rotate([90,0,0])
+        %cylinder(r=rod, h=rodlen, $fn=16, center=true);
+}
+
+
+module noseconplate(cut=1){
     // the plate that hooks to hingepin from the goggle-eye
     vital=.75*nose;
     curve= nose/4;
     intersection(){
         difference(){
             minkowski(){
-                cube([vital,vital,shaft - 0.1], center=false);
+                cube([vital,vital,(shaft+base) - 0.1], center=false);
                 cylinder(r=curve, h=0.05, center=false, $fn=32);
             }
-            translate([vital-curve/2, vital-curve/2, -0.05 - base]){
-                hingepin(fat=0.21);
-                translate([0,0,base+shaft/2])
-                    cylinder(r=vital*.75, h=shaft/2+.1, $fn=36);
-            }
-            
+
         }
-        scale([2.2,1,1]) rotate([0,0,0])
+        // trim off extra plate-area
+        rotate([0,0,0.12*360]) scale([2.2,.55,1]) translate([-3,0,0])
             cylinder(r=vital, h=shaft, $fn=64, center=false);
     }
-} 
+}
 
+module noseconnect(){
+    translate([0,15,0]){
+        rotate([-45,90,-90]) translate([1.5,17,2])
+            difference(){
+            cylinder(r=5.5/2, h=9.1, $fn=36, center=true);
+                hull(){
+                    cylinder(r=1.7, h=9.6, $fn=36, center=true);
+                    translate([-4,-17,0])
+                        cylinder(r=1.54, h=9.6, $fn=36, center=true);
+                }
+            }
+        difference(){
+            noseconplate();
+            translate([3,3,0]){
+                hingepin(fat=0.3);
+                translate([0,0,1])
+                    cylinder(r=10, h=1, $fn=36);
+        }
+        }
+    }
+}
+
+module noseconnect_top(){
+    translate([15,15,0]){
+        rotate([-45,90,-90]) translate([-3.5,-17,-2])
+            difference(){
+            cylinder(r=5.5/2, h=9.1, $fn=36, center=true);
+                hull(){
+                    cylinder(r=1.7, h=9.6, $fn=36, center=true);
+                    translate([-2,17,0])
+                        cylinder(r=1.54, h=9.6, $fn=36, center=true);
+                }
+            }
+        difference(){
+            rotate([0,0,180])
+            noseconplate();
+            translate([-3,-3,0]){
+                rotate([0,180,0])
+                translate([0,0,-3])
+                    hingepin(fat=0.3);
+                translate([0,0,1])
+                    cylinder(r=10, h=1, $fn=36);
+            }
+        }
+    }
+}
+
+
+module sideguard(rad=lenseD/2, ht=40, thk=2){
+    scale([1,1,1]){
+        difference(){
+            translate([0,-40/2, 0]) 
+                linear_extrude(convexity=10, height=25){
+                    difference(){
+                        circle(r=27, $fn=64);
+                        circle(r=24.5, $fn=96);
+                    }
+                }
+            rotate([0,90,0]) scale([5,4,3]) translate([-4,-18,-13])
+            linear_extrude(convexity=10, height=50){
+                sinewave(portion=180);
+            }
+        }
+    }
+}
+
+    
 module lensebody(rad=lenseD/2, d=depth, rotar=0){
     translate([0,0,8]){
 	    difference(){
@@ -128,14 +246,13 @@ module lensebody(rad=lenseD/2, d=depth, rotar=0){
 							    cylinder(r=.5, h=.1, center=true, $fn=16);
 					    }
 			    }
-                if (flip==1){
-                translate([24.5,5,-2]) rotate([180,0,33])
-                    noseconnect();
-                }
-                else {
-                translate([24.5,5,-5]) rotate([0,0,-57])
-                    noseconnect();
-                }
+
+                translate([30,12,-4]) rotate([0,-35,20])
+                    nosebend();
+                translate([-30,7,6]) rotate([0,-48,165])
+                    nosebend();
+                translate([-24,0,5]) rotate([0,0,90])
+                    sideguard();
             }
 		    translate([0,0,-d+7])
 			    cylinder(r=rad-1, h=d/2, $fn=128, center=true);
@@ -151,6 +268,8 @@ module lensebody(rad=lenseD/2, d=depth, rotar=0){
 		    translate([0,d*1.2,d*2.9])	
 			    head();
         }
+        translate([3,-24,5]) rotate([0,0,187])
+            sideguard();
 	}
 }
 

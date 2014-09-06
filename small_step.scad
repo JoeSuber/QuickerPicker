@@ -1,3 +1,4 @@
+// negative cutout for small stepper w gearbox & driver
 
 wide=41.9; 
 end_d=7;

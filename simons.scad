@@ -1,4 +1,4 @@
-
+// box w/ wheel
 echo("a box with holes in it for Simon");
 // todo: get rid of hard-coded '28' in walls_of_box
 
