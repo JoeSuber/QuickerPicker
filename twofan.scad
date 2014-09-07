@@ -104,3 +104,5 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03
 		}
 	}	
 }
+
+

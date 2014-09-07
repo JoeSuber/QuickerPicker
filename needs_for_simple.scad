@@ -24,15 +24,15 @@ bolt = 6.3;
 //nutty();
 //geartop();
 //sample_to_fit();
-translate([0,0,bigh]) rotate([180,0,0])
-    coupleit();
+
+translate([0,0,bigh]) rotate([180,0,0])  coupleit();
 
 
 module geartop (){
 difference(){
     cylinder(r=bigrad, h=bigh, center=false, $fn=128);
     gear(number_of_teeth=19,
-	    circular_pitch=31*3.141592654*3.141592654, diametral_pitch=false,
+	    circular_pitch=30.95*3.141592654*3.141592654, diametral_pitch=false,
 	    pressure_angle=28,
 	    clearance = 0.2,
 	    gear_thickness=14,
@@ -50,6 +50,7 @@ difference(){
 }
 
 module sample_to_fit(ht=1){
+    // a slice of the gear for testing fit
     difference(){
     geartop();
     translate([0,0,50+ht])
@@ -59,6 +60,7 @@ module sample_to_fit(ht=1){
 }
 
 module nutty(nutrad=nutter/2, boltrad=bolt/2){
+    // cuts out the captured nut & bolt channels
     translate([0,0,0]) rotate([90,0,0]) {
         hull(){
             cylinder(r=nutrad, h=nuthut, $fn=6, center=false);
@@ -69,7 +71,8 @@ module nutty(nutrad=nutter/2, boltrad=bolt/2){
     }
 }
 
-module coupleit(shaft=8.15, nuthold=nutter){
+module coupleit(shaft=8.25, nuthold=nutter){
+    //couple belt-gear (that was glued into place) with shaft for direct rotation
     difference(){
         geartop();
         cylinder(r=shaft/2, h=80, $fn=128, center=true);
@@ -81,5 +84,24 @@ module coupleit(shaft=8.15, nuthold=nutter){
     }
 }
 
-//cube([27.55,27.55,5], center=true);
-//module coupler(
+
+module servo_hd(){
+    shafth=48;
+    shaftabove=10;
+    shaftD=9.9;
+    armlen=29.9;
+    shaftcircles=[11,14];
+    circ_to_square_len = 34.96;
+    circ_to_square_width = 18.75;
+    circ_to_square_height = 1.85;
+    boxh = 36.5;
+    boxw = 20.3;
+    boxlen=40.25;
+    tab_thk = 2.5;
+    tab_w = 18.65;
+    tab_len = 7.17;
+    
+    
+    
+    armwidth=12.25;
+
