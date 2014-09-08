@@ -84,19 +84,21 @@ module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, sc
 	}
 }
 
+module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
+    minkowski(){
+	    cube([x-curve, y-curve, h-0.1], center=true);
+	    cylinder(r=curve/2, h=0.1, $fn=curve*6, center=true);
+    }
+    for (i=[-1,1]){
+        translate([(-x/2 - h/2) * i,0,0]) rotate([0,90*i,0])
+        lifter(s=h);
+    }
+}
+
 module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
     translate([0,0,h/2])
 	 difference(){
-        union(){
-		    minkowski(){
-			    cube([x-curve, y-curve, h-0.1], center=true);
-			    cylinder(r=curve/2, h=0.1, $fn=curve*6, center=true);
-		    }
-            for (i=[-1,1]){
-                translate([(-x/2 - h/2) * i,0,0]) rotate([0,90*i,0])
-                lifter(s=h);
-            }
-        }
+        fanblock();
 		for (i=[fansize/2*scl, -fansize/2*scl]){
 			translate([i,0,1])
 			scale([scl,scl,1])

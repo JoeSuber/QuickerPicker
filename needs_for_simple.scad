@@ -15,6 +15,7 @@
 */
 
 use </home/suber1/openscad/libraries/MCAD/involute_gears.scad>;
+use </home/suber1/openscad/libraries/MCAD/screw.scad>;
 bigrad=20;
 bigh = 28.5;
 nutter= 12.65;
@@ -25,8 +26,16 @@ bolt = 6.3;
 //geartop();
 //sample_to_fit();
 
-translate([0,0,bigh]) rotate([180,0,0])  coupleit();
+//translate([0,0,bigh]) rotate([180,0,0])  coupleit();
 
+//$fn=16;  screwdrive();
+//translate([0,20,0])
+ //   screwee();
+
+//nema23neg();
+//rotate([0,180,0]) translate([0,0,-1.5]) powerplate();
+
+trackwheel();
 
 module geartop (){
 difference(){
@@ -55,7 +64,6 @@ module sample_to_fit(ht=1){
     geartop();
     translate([0,0,50+ht])
         cube([100,100,100], center=true);
-
     }
 }
 
@@ -84,6 +92,76 @@ module coupleit(shaft=8.25, nuthold=nutter){
     }
 }
 
+module screwdrive(ptch=11, ht=40, diam=11, balz=2.25, fat=0){
+    bigbalz = balz+fat;
+    cylinder(r=diam/2, h=ht+balz, center=false, $fn=36);
+    translate([0,0,balz/2])
+        for (i=[0,120,240]){
+            rotate([0,0,i])
+                ball_groove2(ptch, ht, diam, bigbalz/2, slices=300);
+        }
+}
+
+module screwee(){
+    difference(){
+        cylinder(r=10, h=10, $fn=6);
+        translate([0,0,-10])
+            screwdrive(fat=.1);
+    }
+}
+
+module nema23neg(out=56.4, holesep=47.14, roundplate=38.1, platethick=4.76, roundthick=1.59, corner_rnd=4, screwhole=5.08, shaft=6.38, fat=0){
+    fout=out - corner_rnd*2;
+    hh=holesep/2;
+    sh=screwhole/2;
+    shft=shaft/2;
+    minkowski(){
+        cube([fout+fat, fout+fat, platethick], center=true);
+        cylinder(r=corner_rnd, h=.1, $fn=12, center=true);
+    }
+    translate([0,0,platethick/2+ roundthick/2])
+        cylinder(r=roundplate/2+fat/2, h=roundthick, $fn=128, center=true);
+    for (i=[hh,-hh], j=[hh,-hh]){
+        translate([i,j,0])
+        cylinder(r=sh, h= 30, $fn=16, center=true);
+    }
+    cylinder(r=shft+fat/2, h=46, $fn=24, center=true);
+}
+
+module sqrbar(ht=100, out=25.4*0.75, wall=2, fat=0){
+    linear_extrude(convexity=10, height=ht){
+        difference(){
+            square([out+fat/2,out+fat/2], center=true);
+            square([out-wall*2-fat/2, out-wall*2-fat/2], center=true);
+        }
+    }
+}
+
+module powerplate(thk=3, short=80, long=90, rnd=5){
+    difference(){
+        minkowski(){
+            cube([long-rnd*2, short-rnd*2, thk], center=true);
+            cylinder(r=rnd, h=.1, $fn=18, center=true);
+        }
+        translate([-long/6, 0, -thk/2])
+            nema23neg(fat=.1);
+        translate([long/2-12.5, 0, -10])
+            #sqrbar(fat=.1);
+    }
+}
+
+module trackwheel(){
+    difference(){
+        cylinder(r=23/2, h=5, $fn=6, center=false);
+        cylinder(r=15/2, h=5.1, $fn=128);
+    }
+    translate([0,0,2.5]){
+        for (i=[0,120,240]){
+            translate([7.5*cos(i), 7.5*sin(i), 0])
+                sphere(r=1.2, $fn=18, center=true);
+        }
+    }
+}
 
 module servo_hd(){
     shafth=48;
@@ -100,8 +178,6 @@ module servo_hd(){
     tab_thk = 2.5;
     tab_w = 18.65;
     tab_len = 7.17;
-    
-    
-    
     armwidth=12.25;
+}
 

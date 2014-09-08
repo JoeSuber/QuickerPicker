@@ -19,7 +19,7 @@ def wave(degs, scale=10):
 def pwave(degs, scale=20):
     # default scale of 20 would give: 0 < x < 40 units
     print("sinepoints = {};".format(wave(degs, scale=scale)))
-    print("*** finito ***")
+    print("*** snip above ***")
     return 0
 
 if __name__ == "__main__":
