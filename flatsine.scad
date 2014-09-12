@@ -34,7 +34,7 @@ module sinewave(portion=359, normto=10){
     part = min(len(sinepoints), portion);
     used_p = [for(i=[0:part]) sinepoints[i]];
     pp = concat(used_p, [[used_p[len(used_p)-1][0], 0]]);
-    spot = -max([for(i=pp) i[1]]) / 2;
+    spot = -max([for(i=pp) i[1]]) / 2);
     echo("max value of:", spot, " moved to x=zero");
     translate([spot, 0,0])
         scale([normto/abs(spot), normto/abs(spot)])
