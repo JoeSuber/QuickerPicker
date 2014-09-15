@@ -153,12 +153,12 @@ module powerplate(thk=3, short=80, long=90, rnd=5){
 module trackwheel(){
     difference(){
         cylinder(r=23/2, h=5, $fn=6, center=false);
-        cylinder(r=15/2, h=5.1, $fn=128);
+        cylinder(r=12.5/2, h=5.1, $fn=128);
     }
     translate([0,0,2.5]){
         for (i=[0,120,240]){
-            translate([7.5*cos(i), 7.5*sin(i), 0])
-                sphere(r=1.2, $fn=18, center=true);
+            translate([6.25*cos(i), 6.25*sin(i), 0])
+                sphere(r=1.3, $fn=18, center=true);
         }
     }
 }

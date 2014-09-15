@@ -5,9 +5,12 @@ use <flatsine.scad>;
 fanbracket();
 
 for (i=[0,1]){
-    mirror([0,i,0])
+    mirror([0,i,0]){
         translate([0,43,0])
             elbow();
+	translate([0,55,0])
+		elbow(tr=3*(6.67+2), thk=5.2);
+    }
 }
 
 
@@ -32,17 +35,17 @@ module lifter(s=fanh){
     }
 }
 
-module elbow(tr=25, thk=5, nutthk=2){
+module elbow(tr=6.67+2, thk=5, nutthk=2.5){
     translate([0,0,thk/2])
     difference(){
         union(){
             cube([tr, thk, thk], center=true);
             translate([tr/2,tr/2,0]){
-                cube([thk,tr, thk], center=true);
+                //cube([thk,tr, thk], center=true);
                 translate([0,-tr/2,0])
                     cylinder(r=thk, h=thk, center=true);
-                translate([0, tr/2, 0])
-                    cylinder(r=thk/2, h=thk, center=true, $fn=24);
+                translate([-4.3, .5, 0])
+                    #cylinder(r=thk/2, h=thk, center=true, $fn=24);
             }
             translate([-tr/2,0,0])
             cylinder(r=thk, h=thk, center=true);
@@ -84,18 +87,15 @@ module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, sc
 	}
 }
 
-module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
+module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*6, h=fanh+1, scl=1.03){
     minkowski(){
 	    cube([x-curve, y-curve, h-0.1], center=true);
 	    cylinder(r=curve/2, h=0.1, $fn=curve*6, center=true);
     }
-    for (i=[-1,1]){
-        translate([(-x/2 - h/2) * i,0,0]) rotate([0,90*i,0])
-        lifter(s=h);
-    }
+
 }
 
-module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
+module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.011){
     translate([0,0,h/2])
 	 difference(){
         fanblock();
@@ -104,6 +104,10 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03
 			scale([scl,scl,1])
 				fancut();
 		}
+		translate([0,0,1]) rotate([90,0,0])
+			cylinder(r=1.7,h=100, center=true, $fn=12);
+		translate([0,0,1]) rotate([90,0,0])
+			cylinder(r=3,h=57, center=true, $fn=18);
 	}	
 }
 

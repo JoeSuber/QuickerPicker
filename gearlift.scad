@@ -6,14 +6,39 @@ cardsize=[88,63];
 //translate([0,0,-0.5]) scale([1,.5,1]) #card();
 //translate([0,0,1.5]) scale([.5,1,1]) #card();
 
-
+rotate(0,180,0
 tray();
-translate([0,0,-12]) rotate([0,180,0])
-	fanbracket();
-translate([0,0,0]) rotate([0,0,0])
-	sensor();
+//translate([0,0,-12]) rotate([0,180,0])
+//	fanbracket();
+//translate([0,0,0]) rotate([0,0,0])
+//	sensor();
 
+//localfanbracket(holes=6, fewer=2);
+
+//translate([0,0,0]) rotate([0,0,0])
+//    motor();
 use </home/suber1/QuickerPicker/twofan.scad>;
+
+
+module localfanbracket(holes=8, fewer=2){
+    difference(){
+        fanbracket();
+        for (i=[cardsize[1]/holes:cardsize[1]/holes:cardsize[1]-cardsize[1]/holes], j=[[90,0,0], [0,90,0]]){
+            translate([i*1.5*j[0]/90-cardsize[0]/2*j[0]/90,i*j[1]/90 - cardsize[1]/2*j[1]/90,7-j[0]/90+j[1]/90]) rotate(j){
+                #cylinder(r=1.7, h=cardsize[0]*1.5, $fn=8, center=true);
+                cylinder(r=6.67/2, h=55, $fn=6, center=true);
+                translate([-7,0,1])
+                    cylinder(r=6.67/2, h=55, $fn=6, center=true);
+            }
+        }
+        for (i=[44,-44], j=[30,-30]){
+            translate([i,j,0])
+                cylinder(r=3,h=50,$fn=28, center=true);
+        }
+    }
+}
+
+
 
 module sensor(cutpins=30, cutscale=[1,1,1] ){
 	translate([-3.03,+2.21,0]) rotate([90,0,0])
@@ -80,23 +105,35 @@ module tray(){
 		union(){
 			tray_block(scaler=1.15, startscale=[1.1,1.1,1], ht=11.9);
 			tray_block(scaler=1, startscale=[1.3, 0.8777, 1], ht=11.9);
-			tray_block(scaler=1, startscale=[0.5, 1.3, 1], ht=11.9);
-			difference(){
-				translate([0,0,-1]) rotate([0,180,0])
-					fanbracket();
-				translate([-(x+.5)*5, -(y+.7)*5, -13])
-					#cube([88,63,15]);
+			tray_block(scaler=1, startscale=[0.5, 1.5, 1], ht=11.9);
 			}
-		}
+		
 		translate([0,0,2])
 			tray_block();
 		for (i=[0:cardsize[0]/10:cardsize[0]], j=[cardsize[1]/10:cardsize[1]/10:cardsize[1] - cardsize[1]/10]){
 			translate([i-cardsize[0]/2,j-cardsize[1]/2,1.5])
 				cube([x,y,3], center=true);
 		}
-	}
-	
+        for (i=[44,-44], j=[30,-30]){
+            translate([i,j,0])
+                cylinder(r=3,h=2,$fn=28, center=true);
+        }
+        translate([0,30,-2.5]) rotate([0,0,0])
+            #sensor();
+        translate([0,-30,-2.5]) rotate([0,0,0])
+            #sensor();
+        translate([0, 45.5, 7.5]) rotate([0,0,0])
+            #sensor();
+        translate([0, -45.5, 7.5]) rotate([0,0,0])
+            #sensor();
+
+    }
+    for (i=[44,-44], j=[30,-30]){
+        translate([i,j,1])
+            cylinder(r=2.5,h=2,$fn=28, center=true);
+    }
 }
+	
 
 	
 		
