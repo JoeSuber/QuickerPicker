@@ -61,8 +61,7 @@ module elbow(tr=6.67+2, thk=5, nutthk=2.5){
         }
     }
 }
-
-                
+               
 module motorbox(){
 	difference(){
 		union(){
@@ -83,6 +82,7 @@ module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, sc
 	}
 	cylinder(r=(xy-0.8)/2, h=h+20, center=true, $fn=48);
 	for (i=[screwhole_space/2, -screwhole_space/2], j=[screwhole_space/2, -screwhole_space/2]){
+        echo("from fancut(), screwhole_OD: ", screwhole_OD);
 		translate([i,j,0])
 			cylinder(r=screwhole_OD/2, h=h*2, $fn=screwhole_OD*3, center=true);
 	}
@@ -96,14 +96,14 @@ module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
 
 }
 
-module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.011){
+module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.011, screwhole_OD=5){
     translate([0,0,h/2])
 	 difference(){
         fanblock();
 		for (i=[fansize/2*scl, -fansize/2*scl]){
 			translate([i,0,1])
 			scale([scl,scl,1])
-				fancut();
+				fancut(screwhole_OD=screwhole_OD);
 		}
 		translate([0,0,1]) rotate([90,0,0])
 			cylinder(r=1.7,h=100, center=true, $fn=12);

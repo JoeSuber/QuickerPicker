@@ -16,14 +16,13 @@ translate([0,86,50*$t]) rotate([0,0,90])
 translate([60,0,0])
 	bigwheel_part();
 	
-translate([-60,0,0])
-	bottom_plate();
+translate([0,86,-12]) rotate([0,180,90])
+    tray();
+
+//motorbox();
 	
 module bottom_plate(){
 	projection(cut = true){
-//translate([0,0,4])
-//	cbracket();
-
 translate([0,86,50*$t-0.5]) rotate([0,0,90])
 	fanbracket();
 	}

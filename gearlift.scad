@@ -8,6 +8,8 @@ cardsize=[88,63];
 
 rotate([0,180,0])
 	tray();
+
+small_shaft();
 //translate([0,0,-12]) rotate([0,180,0])
 //	fanbracket();
 //translate([0,0,0]) rotate([0,0,0])
@@ -18,7 +20,7 @@ rotate([0,180,0])
 //translate([0,0,0]) rotate([0,0,0])
 //    motor();
 use </home/suber1/QuickerPicker/twofan.scad>;
-
+use <innerds.scad>;
 
 module localfanbracket(holes=8, fewer=2){
     difference(){
@@ -41,6 +43,7 @@ module localfanbracket(holes=8, fewer=2){
 
 
 module sensor(cutpins=30, cutscale=[1,1,1] ){
+    echo("sensor cut made with scale: ",cutscale);
 	translate([-3.03,+2.21,0]) rotate([90,0,0])
 		linear_extrude(convexity=10, height=4.42){
 			polygon(points=[[0,0], [0,3], [(6.06-4.81)/2, 3], [(6.06-4.81)/2, 4.64], [5.05, 4.64], [5.05, 3], [6.06,3], [6.06,0]]);
@@ -51,11 +54,11 @@ module sensor(cutpins=30, cutscale=[1,1,1] ){
 	}
 }
 
-module shaft(ht=7.47, dn=2.96, flat=2.45){
+module small_shaft(ht=7.47, dn=2.96, flat=2.45){
 	difference(){
-		cylinder(r=dn/2, h=ht, $fn=20);
+		cylinder(r=dn/2, h=ht, $fn=24);
 		translate([(2.96+2.45)/4, 0, ht/2])
-			#cube([(2.96-2.44)*20, 0, ht+0.1], center=true);
+			cube([(2.96-2.44), 2.96, ht+0.1], center=true);
 	}
 }
 
@@ -80,7 +83,7 @@ module motor (wires=40, wireang=90, motor=14.62){
 		translate([0,0,motor+1+9.16])
 			cylinder(r=2, h=(24.96-24.28), $fn=16);
 		translate([0,0,motor+1+9.16+(24.96-24.28)])
-			shaft();
+			small_shaft();
 	}
 }
 
@@ -98,7 +101,9 @@ module tray_block(scaler=1.25, startscale=[1,1,1], ht=10){
 	}
 }
 
-module tray(){
+deckthickness=2;
+
+module tray(deckthk=deckthickness){
 	x = cardsize[0]/10 - 0.5;
 	y = cardsize[1]/10 - 0.7;
 	difference(){
@@ -108,33 +113,50 @@ module tray(){
 			tray_block(scaler=1, startscale=[0.5, 1.5, 1], ht=11.9);
 			}
 		
-		translate([0,0,2])
+		translate([0,0,deckthk])
 			tray_block();
 		for (i=[0:cardsize[0]/10:cardsize[0]], j=[cardsize[1]/10:cardsize[1]/10:cardsize[1] - cardsize[1]/10]){
-			translate([i-cardsize[0]/2,j-cardsize[1]/2,1.5])
-				cube([x,y,3], center=true);
+			translate([i-cardsize[0]/2,j-cardsize[1]/2, 0])
+				cube([x,y,deckthk*2 + 0.1], center=true);
 		}
         for (i=[44,-44], j=[30,-30]){
             translate([i,j,0])
                 cylinder(r=3,h=2,$fn=28, center=true);
         }
-        translate([0,30,-2.5]) rotate([0,0,0])
+        translate([0,30,-deckthk/2]) rotate([0,0,0])
             #sensor();
-        translate([0,-30,-2.5]) rotate([0,0,0])
+        translate([0,-30,-deckthk/2]) rotate([0,0,0])
             #sensor();
         translate([0, 45.5, 7.5]) rotate([0,0,0])
-            #sensor();
+            #sensor(cutscale=[1.1, 1.1, 1.5]);
         translate([0, -45.5, 7.5]) rotate([0,0,0])
-            #sensor();
-
+            #sensor(cutscale=[1.1, 1.1, 1.5]);
+        translate([-50, 0, 3]) rotate([180,0,0])
+            #sensor(cutscale=[1.1, 2, 2]);
+        translate([50, 0, 3]) rotate([180,0,0])
+            #sensor(cutscale=[1.1, 2, 2]);
+//45.72
+        for (i=[0,1])
+            mirror([0,i,0]) translate([0, 44.1,13.3]) rotate([0,90,0]) rotate([0,0,246.35])
+                #cbar(barH=200);
     }
     for (i=[44,-44], j=[30,-30]){
         translate([i,j,1])
             cylinder(r=2.5,h=2,$fn=28, center=true);
     }
+    translate([87,0,0]) rotate([0,0,90])
+        bottom_plate(deckthk=deckthk);
 }
-	
 
+
+module bottom_plate(deckthk=deckthickness){
+    linear_extrude(convexity=10, height=deckthk){
+	    projection(cut = true){
+            translate([0,86,50*$t-0.5]) rotate([0,0,90])
+	            fanbracket(screwhole_OD=2);
+	    }
+    }
+}
 	
 		
 	
