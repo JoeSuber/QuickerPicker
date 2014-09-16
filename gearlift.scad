@@ -6,8 +6,8 @@ cardsize=[88,63];
 //translate([0,0,-0.5]) scale([1,.5,1]) #card();
 //translate([0,0,1.5]) scale([.5,1,1]) #card();
 
-rotate(0,180,0
-tray();
+rotate([0,180,0])
+	tray();
 //translate([0,0,-12]) rotate([0,180,0])
 //	fanbracket();
 //translate([0,0,0]) rotate([0,0,0])

@@ -2,7 +2,7 @@
 
 wide=41.9; 
 end_d=7;
-metalthick = .9;
+metalthick = 0.9;
 hole_d=4.1;
 
 // first the attach points

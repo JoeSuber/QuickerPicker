@@ -4,23 +4,24 @@ use <flatsine.scad>;
 //fancut();
 fanbracket();
 
-for (i=[0,1]){
-    mirror([0,i,0]){
-        translate([0,43,0])
-            elbow();
-	translate([0,55,0])
-		elbow(tr=3*(6.67+2), thk=5.2);
-    }
-}
-
-
-
 fansize = 50;
 curve = 5;
 fanh=15.15;
 boarder=3;
 
 screwdistance = fansize - curve*2; 
+
+
+module elbi (){
+	for (i=[0,1]){
+		mirror([0,i,0]){
+		    translate([0,43,0])
+		        elbow();
+		translate([0,55,0])
+			elbow(tr=3*(6.67+2), thk=5.2);
+		}
+	}
+}
 
 module lifter(s=fanh){
     difference(){
@@ -87,7 +88,7 @@ module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, sc
 	}
 }
 
-module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*6, h=fanh+1, scl=1.03){
+module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
     minkowski(){
 	    cube([x-curve, y-curve, h-0.1], center=true);
 	    cylinder(r=curve/2, h=0.1, $fn=curve*6, center=true);

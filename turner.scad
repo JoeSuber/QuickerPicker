@@ -1,3 +1,4 @@
+// this  
 
 echo("turner.scad - small gears for runners and drive of big gear, with nut-d_shaft insert");
 echo(".... uses stl import of 'whiskers_small.stl'");
