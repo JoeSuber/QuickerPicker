@@ -12,11 +12,11 @@ travelwheel = 50;
 travelpeg = travelwheel - travelbearing[1];
 
 // * c-bar cut-out / model
-fat     = 0.3;  // add-on to make walls cut out enough space
+fat     = 0.6;  // add-on to make walls cut out enough space
 hb      = 12.7 + fat; // height of bar cross-section
 wthk    = 1.5 + fat;  // thickness of walls
 flrthk  = 1.6 + fat;  // thickness of floor (that walls extend from)
-inside  = 6.9 - fat;  // between walls, across floor (subtracting 2*.5*fat)
+inside  = 9.97 - fat;  // between walls, across floor (subtracting 2*.5*fat)
 c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk+inside, hb], [wthk+inside+wthk, hb], [wthk+inside+wthk, 0]];
 
 //#shaft(travelbearing);
@@ -43,8 +43,10 @@ c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk
 // ** the main picker body ** 
 translate([0,0,4])
     cbracket();
-translate([60,0,0])
-    bigwheel_part();
+//translate([60,0,0])
+//    bigwheel_part();
+translate([70,0,0])
+    lifts();
 // ** the valve parts **
 //louvers();
 
@@ -149,8 +151,8 @@ module bigwheel_part(od=travelwheel, thk=3.5, hub=12, hubthk=4, holes=6, lever=5
             nutbolt(channel_len=0, nut_position=14);
         translate([0,-od/2+lever,0]) rotate([180,0,0])
             nutbolt(channel_len=0, nut_position=14);
-        translate([10,0,3.2]) rotate([90,0,90])
-            #nutbolt(channel_len=6, nut_position=18.7, channel_ang=90);
+        translate([7,0,3.2]) rotate([90,0,90])
+            #nutbolt(channel_len=6, nut_position=11.7, channel_ang=90, shaftlen=12);
     }
 }
 
@@ -244,7 +246,7 @@ module upndown_cutout(ht=travelwheel){
         cylinder(r = (sleeveout+2)/2, h=ht+2, $fn=196, center=true);
 }
 
-module motorcut(x=23,y=22,z=37,tab=[6.2,5,7],tabpos=7.1,curverad=5, shaftpos=[0,11,16], canheight=28){
+module motorcut(x=23,y=22,z=37,tab=[6.2,5,7],tabpos=7.1,curverad=5, shaftpos=[0,11,20.5], canheight=28){
     tiptop = canheight + z + tab[2] - curverad;
     /***** switching to small gearmotors in tandem ****
     // top-motorhousing
@@ -286,17 +288,17 @@ module motorcut(x=23,y=22,z=37,tab=[6.2,5,7],tabpos=7.1,curverad=5, shaftpos=[0,
         rotate([90, 0,0]) translate([0,0,-y]){
             bigwheel_cutout();
             // and its connection hub
-            translate([0,0,+3])
+            translate([0,0,+1])
             hull(){
-                cylinder(r=12, h=15, $fn=36, center=false);
+                cylinder(r=13, h=17, $fn=36, center=false);
                 translate([0,z-shaftpos[0], 0])
-                cylinder(r=12, h=15, $fn=36, center=false);
+                cylinder(r=20, h=17, $fn=36, center=false);
             }
             // and the little motor that could
-            translate([0,0,45.2]) rotate([180,0,0]) scale([1.08,1.08,1.08]){
+            translate([0,0,45.2]) rotate([180,0,0]) scale([1.07,1.07,1.07]){
                 motor();
                 // with a bridge
-                translate([0,0,6]) rotate([0,0,0]) scale([.60,2,1])
+                translate([0,0,6]) rotate([0,0,0]) scale([.57,2,1])
                     cylinder(r=5/.65, h= 25, $fn=36);
                 // and a sensor-hole
                 for (i=[0,1]){
@@ -304,6 +306,11 @@ module motorcut(x=23,y=22,z=37,tab=[6.2,5,7],tabpos=7.1,curverad=5, shaftpos=[0,
                     translate([14,8,3]) rotate([0,0,-45]) scale([1.15,1.15,7])
                         #sensor();
                 }
+            }
+        translate([0,-6.5,1]) cbar();
+            for (i=[0,1]){
+                mirror([i,0,0])
+                translate([23.3,25.5,20]) rotate([180,0,0]) #cbar();
             }
         }
     // make a cut-out for the traveling part
@@ -318,7 +325,7 @@ module cbracket(z=travelwheel/2, bs=1.5){
     difference(){
         translate([-(travelwheel-6)/2, 0, -4])
         minkowski(){
-            cube([travelwheel-6, travelwheel/2, travelwheel-8], center=false);
+            cube([travelwheel-6, travelwheel/2-1.5, travelwheel-1], center=false);
             cylinder(r=8, h=1, $fn=36);
         }
     motorcut();
@@ -344,6 +351,10 @@ module cbracket(z=travelwheel/2, bs=1.5){
     translate([-z * 0.8, -2, 20]) rotate([90,0,0])
         nutbolt(channel_ang=180);
     translate([z * 0.8, -2, 20]) rotate([90,0,0])
+        nutbolt(channel_ang=0);
+    translate([-z * 0.8, 5, 40]) rotate([0,0,0])
+        nutbolt(channel_ang=180);
+    translate([z * 0.8, 5, 40]) rotate([0,0,0])
         nutbolt(channel_ang=0);
     }
 }
@@ -673,3 +684,13 @@ module plate_air_parts(){
         cam(ht=5);
     translate([50,25,0]) rotate([0,0,180]) louvers();
 }
+
+module lifts(){
+        linear_extrude(convexity=10, height=3){
+	    projection(cut = true){
+            translate([0,0,-40.5]) rotate([0,0,90])
+	            cbracket(z=travelwheel/2, bs=1.5);
+	    }
+    }
+}
+

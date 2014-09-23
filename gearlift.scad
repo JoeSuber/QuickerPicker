@@ -6,10 +6,10 @@ cardsize=[88,63];
 //translate([0,0,-0.5]) scale([1,.5,1]) #card();
 //translate([0,0,1.5]) scale([.5,1,1]) #card();
 
-rotate([0,180,0])
+rotate([0,0,0])
 	tray();
 
-small_shaft();
+//small_shaft();
 //translate([0,0,-12]) rotate([0,180,0])
 //	fanbracket();
 //translate([0,0,0]) rotate([0,0,0])
@@ -62,6 +62,10 @@ module small_shaft(ht=7.47, dn=2.96, flat=2.45){
 	}
 }
 
+module sidebar(ht=10, width=21.76){
+    cube(width,[1,1,1]);
+} 
+
 module motor (wires=40, wireang=90, motor=14.62){
 	for (i=[4,-4]){
 		translate([-4,i,1.75]) rotate([90,0,wireang]) 
@@ -101,7 +105,7 @@ module tray_block(scaler=1.25, startscale=[1,1,1], ht=10){
 	}
 }
 
-deckthickness=2;
+deckthickness=4;
 
 module tray(deckthk=deckthickness){
 	x = cardsize[0]/10 - 0.5;
@@ -109,8 +113,9 @@ module tray(deckthk=deckthickness){
 	difference(){
 		union(){
 			tray_block(scaler=1.15, startscale=[1.1,1.1,1], ht=11.9);
-			tray_block(scaler=1, startscale=[1.3, 0.8777, 1], ht=11.9);
-			tray_block(scaler=1, startscale=[0.5, 1.5, 1], ht=11.9);
+            translate([25.5,0,0])
+			tray_block(scaler=1, startscale=[1.8, .95, 1], ht=11.9);
+			//tray_block(scaler=1, startscale=[0.5, 1.5, 1], ht=11.9);
 			}
 		
 		translate([0,0,deckthk])
@@ -120,25 +125,41 @@ module tray(deckthk=deckthickness){
 				cube([x,y,deckthk*2 + 0.1], center=true);
 		}
         for (i=[44,-44], j=[30,-30]){
-            translate([i,j,0])
+            translate([i,j,0]){
                 cylinder(r=3,h=2,$fn=28, center=true);
+            }
         }
-        translate([0,30,-deckthk/2]) rotate([0,0,0])
+        translate([0,30,-.5]) rotate([0,0,0])
             #sensor();
-        translate([0,-30,-deckthk/2]) rotate([0,0,0])
+        translate([0,-30,-.5]) rotate([0,0,0])
             #sensor();
         translate([0, 45.5, 7.5]) rotate([0,0,0])
             #sensor(cutscale=[1.1, 1.1, 1.5]);
         translate([0, -45.5, 7.5]) rotate([0,0,0])
             #sensor(cutscale=[1.1, 1.1, 1.5]);
-        translate([-50, 0, 3]) rotate([180,0,0])
-            #sensor(cutscale=[1.1, 2, 2]);
-        translate([50, 0, 3]) rotate([180,0,0])
-            #sensor(cutscale=[1.1, 2, 2]);
+
+        translate([57, 0, 4]) rotate([0,0,0]){
+            cube([5,14,12], center=true);
+            translate([24.5, 0, 0])
+            cube([49,2,12], center=true);
+        }
 //45.72
         for (i=[0,1])
-            mirror([0,i,0]) translate([0, 44.1,13.3]) rotate([0,90,0]) rotate([0,0,246.35])
+            mirror([0,i,0]) translate([53,0,-20]) rotate([90,90,0]) 
                 #cbar(barH=200);
+        for (i=[0,1])
+            mirror([0,i,0]) translate([58,27,-20]) rotate([0,0,0]) 
+                cylinder(r=3.5/2, h=100, $fn=12, center=true);
+        for (i=[0,1], j=[72,84,96])
+            mirror([0,i,0]) translate([j,25,7]) rotate([-90,0,0]) 
+                #nutbolt(roundhead=5.66,
+				hexhead=6.65, 
+                shaftD=3.25, 
+                shaftlen=20, 
+                nut_position=15,
+                nut_thick=2.45,  
+                channel_len=15, 
+                channel_ang=90);
     }
     for (i=[44,-44], j=[30,-30]){
         translate([i,j,1])
