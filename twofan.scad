@@ -75,7 +75,7 @@ module motorbox(){
 	}
 }
 
-module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, screwhole_OD=5){
+module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, screwhole_OD=3.3){
 	minkowski(){
 		cube([xy-curve, xy-curve, h-.1], center=true);
 		cylinder(r=curve/2, h=.1, $fn=curve*6, center=true);
@@ -84,11 +84,11 @@ module fancut(xy=fansize, h=fanh, curve=curve, screwhole_space=screwdistance, sc
 	for (i=[screwhole_space/2, -screwhole_space/2], j=[screwhole_space/2, -screwhole_space/2]){
         echo("from fancut(), screwhole_OD: ", screwhole_OD);
 		translate([i,j,0])
-			cylinder(r=screwhole_OD/2, h=h*2, $fn=screwhole_OD*3, center=true);
+			cylinder(r=screwhole_OD/2, h=h*2, $fn=screwhole_OD*4, center=true);
 	}
 }
 
-module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
+module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*5, h=fanh+1, scl=1.03){
     minkowski(){
 	    cube([x-curve, y-curve, h-0.1], center=true);
 	    cylinder(r=curve/2, h=0.1, $fn=curve*6, center=true);
@@ -96,7 +96,7 @@ module fanblock(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.03){
 
 }
 
-module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.011, screwhole_OD=5){
+module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*5, h=fanh+1, scl=1.011, screwhole_OD=5){
     translate([0,0,h/2])
 	 difference(){
         fanblock();
@@ -105,11 +105,20 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*2, h=fanh+1, scl=1.01
 			scale([scl,scl,1])
 				fancut(screwhole_OD=screwhole_OD);
 		}
-		translate([0,0,1]) rotate([90,0,0])
-			cylinder(r=1.7,h=100, center=true, $fn=12);
-		translate([0,0,1]) rotate([90,0,0])
-			cylinder(r=3,h=57, center=true, $fn=18);
-	}	
+        for (i=[-2,-1,0,1,2], j=[-1,1]){
+            translate([fansize/2.5*i, 0, 0]){
+		        translate([0,0,-1]) rotate([90,0,0])
+			        cylinder(r=1.7,h=100, center=true, $fn=12);
+		        translate([0,0,-1]) rotate([90,0,0])
+			        cylinder(r=3,h=57, center=true, $fn=18);
+		        translate([0, j*(y/2-1.14), -1]) rotate([90,0,0])
+			        cylinder(r=3.35,h=2.3, center=true, $fn=6);
+            }    
+	    }
+	    for (i=[-1,0,1,], j=[1,-1]){
+            translate([j*x/2, i*(y/2-boarder*1.5), 0]) rotate([0,90,0])
+                #cylinder(r=1.5, h=boarder*6, center=true, $fn=10);
+        }
+    }
 }
-
 
