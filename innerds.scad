@@ -12,12 +12,14 @@ travelwheel = 50;
 travelpeg = travelwheel - travelbearing[1];
 
 // * c-bar cut-out / model
-fat     = 0.6;  // add-on to make walls cut out enough space
-hb      = 12.7 + fat; // height of bar cross-section
-wthk    = 1.5 + fat;  // thickness of walls
-flrthk  = 1.6 + fat;  // thickness of floor (that walls extend from)
-inside  = 9.97 - fat;  // between walls, across floor (subtracting 2*.5*fat)
+fat     = 0.45;             // add-on to make walls cut out enough space
+hb      = 12.7 + fat;       // height of bar cross-section
+wthk    = 1.5 + fat;        // thickness of walls
+flrthk  = 1.6 + fat;        // thickness of floor (that walls extend from)
+inside  = 9.97 - fat;       // between walls, across floor (subtracting 2*.5*fat)
+big_inside = 13.15 - fat;   //as above but for wider bar
 c_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+inside, flrthk], [wthk+inside, hb], [wthk+inside+wthk, hb], [wthk+inside+wthk, 0]];
+b_bar = [[0,0], [0,hb], [wthk, hb], [wthk, flrthk], [wthk+big_inside, flrthk], [wthk+big_inside, hb], [wthk+big_inside+wthk, hb], [wthk+big_inside+wthk, 0]];
 
 //#shaft(travelbearing);
 //#cbar(barH=100);
@@ -74,7 +76,15 @@ module cbar(outline=c_bar, barH=50){
     midbar = outline[7][0] / 2;
     echo("midbar read as: ",midbar);
     translate([-midbar,0,0])
-    linear_extrude(center=true, height=barH, convexity=10, slices=2)
+    linear_extrude(center=true, height=barH, convexity=10, slices=1)
+        polygon(points=outline);
+}
+
+module bbar(outline=b_bar, barH=50){
+    midbar = outline[7][0] / 2;
+    echo("wider bar midpoint is:",midbar);
+    translate([-midbar,0,0])
+    linear_extrude(center=true, height=barH, convexity=10, slices=1)
         polygon(points=outline);
 }
 

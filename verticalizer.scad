@@ -1,3 +1,7 @@
+// a cylinder with a bump on the outside
+// used for translating a sleeve up and down using 
+// unidirectional rotation
+
 use <inside_tracker.scad>;
 
 // vertical motion from grooves
