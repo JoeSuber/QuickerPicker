@@ -1,4 +1,6 @@
-// for spacing rods and using fan-screw-holes as slider bearings
+// parts for two-fan picker
+// for spacing rods and using fan-screw-holes as slider bearings: rodholder()
+
 
 rotate([180,0,0]) rodholder();
 
