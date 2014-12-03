@@ -8,7 +8,13 @@ fansize = 50;
 curve = 5;
 fanh=15.15;
 boarder=3;
-
+sensor_bottom_x = 4;
+sensor_bottom_y = 4;
+sensor_bottom_z = 1.7;
+sensor_bot = [sensor_bottom_x,sensor_bottom_y,sensor_bottom_z];
+sensor_top = [6,4,3.5];
+totalsensor_ht = sensor_top[2] + sensor_bottom_z;
+echo(totalsensor_ht);
 screwdistance = fansize - curve*2; 
 
 
@@ -100,12 +106,16 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*5, h=fanh+1, scl=1.01
     translate([0,0,h/2])
 	 difference(){
         fanblock();
-		for (i=[fansize/2*scl, -fansize/2*scl]){
-			translate([i,0,1])
-			scale([scl,scl,1])
-				fancut(screwhole_OD=screwhole_OD);
-		}
-        for (i=[-2,-1,0,1,2], j=[-1,1]){
+        
+        // two fan cut-outs
+        for (i=[fansize/2*scl, -fansize/2*scl]){
+                translate([i,0,1])
+                scale([scl,scl,1])
+                        fancut(screwhole_OD=screwhole_OD);
+        }
+        
+        // holes on the sides with captured nuts
+        for (i=[-2,-1,1,2], j=[-1,1]){
             translate([fansize/2.5*i, 0, 0]){
 		        translate([0,0,-1]) rotate([90,0,0])
 			        cylinder(r=1.7,h=100, center=true, $fn=12);
@@ -115,9 +125,23 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*5, h=fanh+1, scl=1.01
 			        cylinder(r=3.35,h=2.3, center=true, $fn=6);
             }    
 	    }
-	    for (i=[-1,0,1,], j=[1,-1]){
-            translate([j*x/2, i*(y/2-boarder*1.5), 0]) rotate([0,90,0])
-                #cylinder(r=1.5, h=boarder*6, center=true, $fn=10);
+        
+        // holes
+        for (i=[-1,0,1,], j=[1,-1]){
+        translate([j*x/2, i*(y/2-boarder*1.5), 0]) rotate([0,90,0])
+            #cylinder(r=1.5, h=boarder*6, center=true, $fn=10);
+        }
+        
+        // IR sensor ( ods687 )
+        for (j=[-1,1]){
+            translate([0, j*(y/2 - sensor_bottom_y/2), -8.25]){
+                translate([0,0,sensor_bottom_z/2])
+                    #cube(sensor_bot, center=true);
+                translate([0,0,totalsensor_ht/2 + sensor_bottom_z/2- 0.1])
+                    #cube(sensor_top, center=true);
+            cube([sensor_bottom_x, sensor_bottom_y, 16], center=true);
+            cylinder(r=sensor_bottom_x/2-0.25, h=17, center=false);    
+            }
         }
     }
 }
