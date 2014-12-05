@@ -16,6 +16,8 @@
 
 use </home/suber1/openscad/libraries/MCAD/involute_gears.scad>;
 use </home/suber1/openscad/libraries/MCAD/screw.scad>;
+use <plates_on_shaft.scad>;
+
 bigrad=20;
 bigh = 28.5;
 nutter= 12.65;
@@ -32,10 +34,13 @@ bolt = 6.3;
 //translate([0,20,0])
  //   screwee();
 
-//nema23neg();
-//rotate([0,180,0]) translate([0,0,-1.5]) powerplate();
+//calibrate();
+//calibrate2();
 
-trackwheel();
+//nema23neg();
+//scale([56/57.3, 56/56.95, 1]) rotate([0,180,0]) translate([0,0,-1.5]) powerplate();
+rotate([0,180,0]) translate([0,0,-1.5]) powerplate();
+//trackwheel();
 
 module geartop (){
 difference(){
@@ -117,7 +122,7 @@ module nema23neg(out=56.4, holesep=47.14, roundplate=38.1, platethick=4.76, roun
     shft=shaft/2;
     minkowski(){
         cube([fout+fat, fout+fat, platethick], center=true);
-        cylinder(r=corner_rnd, h=.1, $fn=12, center=true);
+        cylinder(r=corner_rnd, h=.1, $fn=48, center=true);
     }
     translate([0,0,platethick/2+ roundthick/2])
         cylinder(r=roundplate/2+fat/2, h=roundthick, $fn=128, center=true);
@@ -125,7 +130,7 @@ module nema23neg(out=56.4, holesep=47.14, roundplate=38.1, platethick=4.76, roun
         translate([i,j,0])
         cylinder(r=sh, h= 30, $fn=16, center=true);
     }
-    cylinder(r=shft+fat/2, h=46, $fn=24, center=true);
+    cylinder(r=shft+fat/2, h=46, $fn=48, center=true);
 }
 
 module sqrbar(ht=100, out=25.4*0.75, wall=2, fat=0){
@@ -137,16 +142,32 @@ module sqrbar(ht=100, out=25.4*0.75, wall=2, fat=0){
     }
 }
 
-module powerplate(thk=3, short=80, long=90, rnd=5){
+module powerplate(thk=5.8, short=80, long=90, rnd=5){
+    hh = (long - rnd*2 - 1.5)/2;
+    kk = (short - rnd*2 - 1.5)/2;
     difference(){
         minkowski(){
             cube([long-rnd*2, short-rnd*2, thk], center=true);
-            cylinder(r=rnd, h=.1, $fn=18, center=true);
+            cylinder(r=rnd, h=.1, $fn=48, center=true);
         }
-        translate([-long/6, 0, -thk/2])
-            nema23neg(fat=.1);
-        translate([long/2-12.5, 0, -10])
-            #sqrbar(fat=.1);
+        translate([-long/6, 0, -1])
+            nema23neg(fat=0.1);
+        translate([long/2-10.5, 0, -10]){
+            //#sqrbar(fat=.1);
+            #beamstub(ht=50);
+            for (i=[1:20]){
+            echo(i);
+            scale([0.90+i/100, 0.90+i/100, 1])
+                beamstub(ht=50);
+            }
+            //scale([1.07, 1.07, 1])
+            //    beamstub(ht=50);
+            //cube([6.5,6.5,30], center=true);
+        }
+        for (i=[hh,-hh], j=[kk,-kk]){
+            translate([i,j,0])
+                cylinder(r=3.4, h= 30, $fn=16, center=true);
+        }
     }
 }
 
@@ -179,5 +200,19 @@ module servo_hd(){
     tab_w = 18.65;
     tab_len = 7.17;
     armwidth=12.25;
+}
+
+
+module calibrate(){
+    difference(){
+        cube([25.4,25.4,10], center=true);
+        cylinder(r=10, h=10.1, center=true, $fn=64);
+    }
+}
+
+module calibrate2(){
+    cube([100,5,2], center=true);
+    rotate([0,0,90])
+        cube([100,5,2],center=true);
 }
 

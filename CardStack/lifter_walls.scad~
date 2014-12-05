@@ -1,0 +1,66 @@
+// stackable trays bolt together
+// topper narrows to exact card size for camera positioning
+// IR sensor positions allow mcu to adjust card height
+// screw drive allows stepper disable to reduce power/heat
+// 100lb test thread x 4 for lifting
+
+use <bearing.scad>;
+
+// * bearing(pos=[0,0,0], angle=[0,0,0], model=SkateBearing, outline=false, material=Steel, sideMaterial=Brass);
+
+use <motors.scad>;
+
+// * stepper_motor_mount(nema_standard, slide_distance=0, mochup=true, tolerance=0);
+
+use <hardware.scad>;
+
+// * screw(length, nutpos, washer, bearingpos = -1);
+
+use <involute_gears.scad>;
+
+end_x = 2.5*25.4 + 22 + 20;
+
+end_plate();
+//screwin();
+
+module screwin(ang=0, tail=10, nutpos=9, shaft=12){
+    rotate([0,0,ang])
+    screw(shaft, nutpos, 0, $fn=24);
+    translate([0,-5.8/2,-nutpos-2.5])
+       cube([tail,5.8,2.5], center=false);
+}
+
+module end_plate(x = end_x, y = 70, thk = 7, boltlen=12){
+    difference(){
+        minkowski(){
+        cylinder(1,1,center=false);
+        cube([x,y,thk], center=false, $fn=12);
+        }
+        translate([x/2, 42.3/2, 22]) rotate([180,0,0])
+            #steppercut();
+        
+        for (i=[1,-1]){
+            translate([x/2 + i*2.5/2*25.4+i*9,13,0])
+                cylinder(r=22.2/2, h=20, center=true, $fn=64);
+            translate([x/2 + i*2.5/2*25.4+i*9,y-13,0])
+                cylinder(r=22.2/2, h=20, center=true, $fn=64);
+            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*20,y/2-10,thk/2]) rotate([0,90,90-90*i])
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
+            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*20,y/2+10,thk/2]) rotate([0,90,90-90*i])
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
+            translate([x/2 + i*2.5/4*25.4,y+4,thk/2]) rotate([0,-270,90])
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
+
+        }
+    }
+}
+
+module steppercut(xy=42.3, curve=5.7, tall=20){
+    linear_extrude(height=tall)
+        minkowski(){
+            square([xy-curve, xy-curve], center=true);
+            circle(r = curve/2, center=true, $fn=16);
+        }
+    linear_extrude(height=tall+12)
+        stepper_motor_mount(17, slide_distance=0, mochup=true, tolerance=0);
+}

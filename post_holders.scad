@@ -9,7 +9,8 @@ use <innerds.scad>;
  //   }
 
 //weightplug();
-tubesquare();
+//tubesquare();
+slidesquare();
 
 module posthold(){
     difference(){
@@ -98,3 +99,12 @@ module tubesquare(ID=15.95, walls=1.6){
                 cube([ID+walls*2+.5, walls+.5, 2*walls-0.1], center=true);
     }
 }
+
+module slidesquare(ID=15.95, walls=1.6){
+    difference(){
+        cube([ID,ID,ID], center=true);
+        translate([0,-ID/2+walls,0])
+            cbar(ht=120, fat=0.5);
+    }
+}
+

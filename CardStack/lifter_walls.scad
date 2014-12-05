@@ -18,7 +18,7 @@ use <hardware.scad>;
 
 use <involute_gears.scad>;
 
-end_x = 2.5*25.4 + 22 + 8;
+end_x = 2.5*25.4 + 22 + 20;
 
 end_plate();
 //screwin();
@@ -32,22 +32,24 @@ module screwin(ang=0, tail=10, nutpos=9, shaft=12){
 
 module end_plate(x = end_x, y = 70, thk = 7, boltlen=12){
     difference(){
-        cube([x,y,thk], center=false);
-        
+        minkowski(){
+        cylinder(1,1.5,center=false);
+        cube([x,y,thk], center=false, $fn=20);
+        }
         translate([x/2, 42.3/2, 22]) rotate([180,0,0])
             #steppercut();
         
         for (i=[1,-1]){
-            translate([x/2 + i*2.5/2*25.4,12,0])
+            translate([x/2 + i*2.5/2*25.4+i*9,13,0])
                 cylinder(r=22.2/2, h=20, center=true, $fn=64);
-            translate([x/2 + i*2.5/2*25.4,y-12,0])
+            translate([x/2 + i*2.5/2*25.4+i*9,y-13,0])
                 cylinder(r=22.2/2, h=20, center=true, $fn=64);
-            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*11,y/2-10,thk/2]) rotate([0,90,90-90*i])
-                #screwin(ang=1, tail=10, nutpos=9, shaft=12);
-            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*12,y/2+10,thk/2]) rotate([0,90,90-90*i])
-                #screwin(ang=1, tail=10, nutpos=9, shaft=12);
+            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*20,y/2-10,thk/2]) rotate([0,90,90-90*i])
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
+            translate([x/2 + i*2.5/2*25.4+i*boltlen/2+i*20,y/2+10,thk/2]) rotate([0,90,90-90*i])
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
             translate([x/2 + i*2.5/4*25.4,y+4,thk/2]) rotate([0,-270,90])
-                #screwin(ang=1, tail=10, nutpos=9, shaft=12);
+                #screwin(ang=0, tail=10, nutpos=8, shaft=12);
 
         }
     }
@@ -56,7 +58,7 @@ module end_plate(x = end_x, y = 70, thk = 7, boltlen=12){
 module steppercut(xy=42.3, curve=5.7, tall=20){
     linear_extrude(height=tall)
         minkowski(){
-            square([xy-curve*2, xy-curve*2], center=true);
+            square([xy-curve, xy-curve], center=true);
             circle(r = curve/2, center=true, $fn=16);
         }
     linear_extrude(height=tall+12)
