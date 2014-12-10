@@ -19,13 +19,19 @@ use <hardware.scad>;
 use <involute_gears.scad>;
 
 end_x = 2.5*25.4 + 22 + 20;
+end_y = 70;
 
-//end_plate();
+end_plate();
 //end_mold();
-sideplate();
+//sideplate();
 //screwin();
 //opb6xx();
-
+translate([- 10, 0, 0])
+    biscuit(cutout=0);
+translate([- 20, 0, 0])
+    biscuit(cutout=0);
+//translate([10, 0, 0])
+//    biscuit(cutout=1);
 
 module screwin(ang=0, tail=10, nutpos=9, shaft=12){
     rotate([0,0,ang])
@@ -34,13 +40,36 @@ module screwin(ang=0, tail=10, nutpos=9, shaft=12){
        cube([tail,5.8,2.5], center=false);
 }
 
-module end_plate(x = end_x, y = 70, thk = 7, boltlen=12){
+module biscuit(rnd=4, length=30, holes=1.6, cutout=0){
+    difference(){
+        union(){
+            for (i=[0,length-rnd*2]){
+                translate([0,i,0])
+                    cylinder(r=holes, h=22, center=true, $fn=24);
+            }
+            scale([1+cutout/100, 1+cutout/100, 1+cutout/100])
+            hull(){
+                cylinder(r=rnd, h=1.2, $fn=36);
+                translate([0,length-rnd*2,0])
+                    cylinder(r=rnd, h=1.2, $fn=36);
+            }
+        }
+        if (cutout == 0){
+            for (i=[0,length-rnd*2]){
+                translate([0,i,0])
+                    cylinder(r=holes+.05, h=22.1, center=true, $fn=24);
+            }
+        }
+    }
+}
+
+module end_plate(x = end_x, y = end_y, thk = 6.9, boltlen=12){
     difference(){
         minkowski(){
-        cylinder(1,1.5,center=false, $fn=20);
+        cylinder(.01,1.5,center=false, $fn=20);
         cube([x,y,thk], center=false);
         }
-        translate([x/2, 42.3/2, 22]) rotate([180,0,0])
+        translate([x/2, 41.4/2, 22]) rotate([180,0,0])
             #steppercut();
         
         for (i=[1,-1]){
@@ -54,12 +83,13 @@ module end_plate(x = end_x, y = 70, thk = 7, boltlen=12){
                 #screwin(ang=0, tail=10, nutpos=8, shaft=12);
             translate([x/2 + i*2.5/4*25.4,y+4,thk/2]) rotate([0,-270,90])
                 #screwin(ang=0, tail=10, nutpos=8, shaft=12);
-
+            translate([x/2 + i*2.5/4*25.4 + i*5, y-10, thk-1.18]) rotate([0,0,0])
+                #biscuit(cutout=1);
         }
     }
 }
 
-module end_mold(x = end_x, y = 70, thk = 7, boltlen=12){
+module end_mold(x = end_x, y = end_y, thk = 7, boltlen=12){
     // a positive for cutting into side-panels
     translate([thk+1, 0, 4]) rotate([0,-90,0]){
     cube([thk,y,thk], center=false);
@@ -93,7 +123,6 @@ module opb6xx(
     }
 }
 
-
 module sideplate(x = 4.1*25.4, y = 70, z = 5){
     // structure
     difference(){
@@ -110,8 +139,6 @@ module sideplate(x = 4.1*25.4, y = 70, z = 5){
         }
     }
 }
-
-
 
 module steppercut(xy=42.3, curve=5.7, tall=20){
     linear_extrude(height=tall)
