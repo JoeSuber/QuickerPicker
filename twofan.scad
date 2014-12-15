@@ -6,7 +6,7 @@ fanbracket();
 
 fansize = 50;
 curve = 5;
-fanh=15.15;
+fanh=15.15; 
 boarder=3;
 sensor_bottom_x = 5;
 sensor_bottom_y = 4.6;
@@ -132,7 +132,7 @@ module fanbracket(x=fansize*2+boarder*2, y=fansize+boarder*5, h=fanh+1, scl=1.01
             #cylinder(r=1.5, h=boarder*6, center=true, $fn=10);
         }
         
-        // IR sensor ( ods687 )
+        // IR sensor ( opb6xx )
         for (j=[-1,1]){
             translate([0, j*(y/2 - sensor_bottom_y/2), -8.25]){
                 translate([0,0,sensor_bottom_z/2])
