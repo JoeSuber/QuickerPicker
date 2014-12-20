@@ -3,12 +3,14 @@ use <hardware.scad>;
 // screw(length, nutpos, washer, bearingpos = -1)
 //holderflat();
 //m3bolt();
-translate([46,0,0])
-    capture_hollow();
+//translate([46,0,0])
+//    capture_hollow();
 //card(h=.6);
 rotate([180,0,90])
     //support();
-    tray();
+    //tray();
+ block();
+    
 module lmb6uu(){
     // with rod
     difference(){
@@ -89,16 +91,47 @@ module capture_hollow(cutout=true){
 }
 
 module card(x=63, y=87.97, curve=2.55, h=17.89/58){
-    linear_extrude(height=h){
-        minkowski(){
-            square([x-curve*2, y-curve*2], center=true);
-            circle(r=curve, $fn=36);
+    difference(){
+        linear_extrude(height=h){
+            minkowski(){
+                square([x-curve*2, y-curve*2], center=true);
+                circle(r=curve, $fn=36);
+            }
+        }
+        for (i=[-1,0,1], j=[1,-1]){
+            translate([j*x/1.5 - j*20, i*y/1.5- i*37.5, -0.1]){
+                #cylinder(h=h+0.2, r=1.66, $fn=24);
+                translate([0,0,h/2+.1])
+                    #cylinder(h=h/2, r=2.67, $fn=36);
+            }
         }
     }
-    //test size
-    //#translate([0,0,-1]) square([x, y], center=true);
 }
 
+module block(ht=20, x=63, y=87.97, rad=4.5){
+    difference(){
+        card(h=ht);
+        translate([0, 87.97/2 - 12,rad]) rotate([0,90,0])
+            scale([1.1,2,1])
+                union(){
+                    cylinder(r=rad,  h=63.1, $fn=36, center=true);
+                    translate([rad/2, 0,0])
+                        cube([rad,rad*2,63.3], center=true);
+                }
+            }
+       translate([40,0, ht-x+2])
+            buckle(het=x, rdd=rad);
+ }
+ 
+ module buckle(het=1, rdd=1){
+     scale([1.05,2,1])
+        difference(){
+            cylinder(r=rdd,  h=het-2, $fn=36, center=false);
+            translate([0,1.5,0])
+                cube([1.2, rdd+3, het*2], center=true);
+        }
+ }
+ 
 module support(l= 120, thk=23.4, sections=5, gap=1.5){
     dsqr=(l/sections)+gap;
     start=l/sections;

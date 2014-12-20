@@ -11,7 +11,7 @@ use <hardware.scad>;
 
 use <bolt_carriage.scad>;
 
-plateprint();
+//plateprint();
 translate([88, 0, 0])
     headprint();
 
@@ -30,7 +30,7 @@ module plateprint(){
 module headprint(){
     difference(){
         plateprint();
-        translate([0,-12,20]) rotate([180,0,-90]) #tray(harden=20);
+        translate([0,-12,20]) rotate([180,0,-90]) scale([1.015,1.015,1]) tray(harden=20);
         rotate([90,0,0]) translate([31,2.2,7]) rotate([0,90,0]) #opb6xx();
     }
 }

@@ -43,7 +43,7 @@ module axles(rad=rodr, length=curve*3){
     }
 }
 
-module roller(ht=63.5+1.6,  rad=rodr*3+curve*1.41 - curve*1.2, spinhole=rodr){
+module roller(ht=56.4+1.6,  rad=rodr*3+curve*1.41 - curve*1.2, spinhole=rodr){
     difference(){
         union(){
             cylinder(r1=rad+0.8, r2=rad, h=.8, $fn=96);
